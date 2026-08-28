@@ -18,6 +18,7 @@ build-backend = "uv_build"
 
 [dependency-groups]
 dev = [
+    "mypy>=2.3.1",
     "ruff>=0.16.5",
 ]
 
@@ -28,3 +29,8 @@ line-length = 88
 extend-select = ["I", "UP", "C4"]
 
 [tool.ruff.format]
+
+[tool.mypy]
+python_version = "3.14"
+files = ["src"]
+strict = true
