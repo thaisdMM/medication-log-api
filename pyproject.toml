@@ -36,6 +36,10 @@ extend-select = ["I", "UP", "C4"]
 [tool.ruff.format]
 
 [tool.mypy]
+plugins = ["mypy_django_plugin.main"]
 python_version = "3.14"
 files = ["src"]
 strict = true
+
+[tool.django-stubs]
+django_settings_module = "config.settings"
