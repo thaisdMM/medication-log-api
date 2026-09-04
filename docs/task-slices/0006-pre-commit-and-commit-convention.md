@@ -2,8 +2,6 @@
 
 # `pre-commit` tying linter and types together, plus the commit message convention
 
-**Commit:** `15d9437`
-
 - `pre-commit` installed as a dev dependency (`uv add --dev pre-commit`),
   version 4.6.2
 - `.pre-commit-config.yaml` created at the root, with four hooks:
@@ -30,8 +28,9 @@ then `commit-msg`), and each point stashes and restores any change outside
 behavior, not a fault.
 
 **Carried into later tasks:**
-* Repository-hygiene hooks (large file, private key) — Thaís' decision,
+
+- Repository-hygiene hooks (large file, private key) — Thaís' decision,
   outside this task's scope
-* Re-checking the hooks once `django-stubs` is installed — task 0.5
-* Writing the commit convention into `README.md`, in English — slice 6
-* Running the same checks on the server — task 0.10
+- Re-checking the hooks once `django-stubs` is installed — task 0.5
+- Writing the commit convention into `README.md`, in English — slice 6
+- Running the same checks on the server — task 0.10

@@ -2,10 +2,6 @@
 
 # Django project created inside `src`, secret key out of code
 
-**Commits:**
-* `19f6cdb` — `chore(dependencies): add django, environs, and django-stubs`
-* `404ad9a` — `chore: add django project with secret key outside the code`
-
 - Django installed as a project dependency (`uv add django`), version 6.1
 - `environs[django]` installed as a project dependency, version 15.1.0 —
   chosen among three options for converting values to typed data compatible
@@ -45,10 +41,11 @@ enabled, and the project's first secret is already out of version control.
 Part 2 continues the configuration from here.
 
 **Carried into part 2 of this task:**
-* Reading the rest of the environment-variable configuration
+
+- Reading the rest of the environment-variable configuration
   (`DJANGO_DEBUG`, `DJANGO_ALLOWED_HOSTS`, `DATABASE_URL`), creating
   `.env.example`, and re-checking `pre-commit`'s hooks
-* Generating a new, strong production secret key and running Django's
+- Generating a new, strong production secret key and running Django's
   deploy check (`check --deploy`) — task 0.11
-* Conflict between that check and console-based email delivery — slice 5
-* Django 6.1's `MAILERS` format — slice 5
+- Conflict between that check and console-based email delivery — slice 5
+- Django 6.1's `MAILERS` format — slice 5
