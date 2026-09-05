@@ -514,7 +514,7 @@ Fato verificado na documentação oficial em 24/08/2026: por padrão o
 PostgreSQL não considera dois nulos iguais entre si, e a cláusula
 `NULLS NOT DISTINCT` altera esse comportamento. No Django, a opção é
 `UniqueConstraint.nulls_distinct`, e é ignorada em bancos que não sejam
-PostgreSQL. Ambiente de Thaís: PostgreSQL 17, Django 6.1.
+PostgreSQL. Ambiente de Thaís: PostgreSQL 18, Django 6.1.
 
 **Leia "verificado" pelo que a palavra diz:** foi verificado na **documentação**
 e nunca foi executado. O experimento que transforma isso em fato está na §3.10.
@@ -620,7 +620,7 @@ ela diz: documentação. **Ninguém rodou nada.** Não existe projeto Django nem
 banco nesta pasta.
 
 Antes de a modelagem ser fechada, rodar um experimento pequeno contra
-PostgreSQL 17 e Django 6.1, com um modelo que declare a `UniqueConstraint` da
+PostgreSQL 18 e Django 6.1, com um modelo que declare a `UniqueConstraint` da
 §3.1 — conta + nome em caixa uniforme + valor + unidade + forma — com
 `nulls_distinct=False`. Três perguntas, e cada uma decide uma coisa diferente:
 
@@ -923,7 +923,7 @@ Fato verificado na documentação oficial do Django 6.1 em 24/08/2026:
 restrição de tabela; a única incompatibilidade documentada com expressões é
 `deferrable`, que nesse caso não pode ser usado; restrições com
 `nulls_distinct` são ignoradas fora do PostgreSQL. Ambiente de Thaís:
-PostgreSQL 17, Django 6.1.
+PostgreSQL 18, Django 6.1.
 
 Ressalva registrada, verificada apenas em parte: há registro fechado no
 rastreador do Django sobre expressões que resultam em `NULL` combinadas com

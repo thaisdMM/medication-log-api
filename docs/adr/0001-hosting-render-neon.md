@@ -28,7 +28,7 @@ as an escape valve if hibernation becomes a real problem at publish time.
 ## Decision Outcome
 
 Chosen option: "Render (web) + Neon (database)", because Neon's free tier is
-permanent, needs no card, and runs PostgreSQL 17 — meeting the version
+permanent, needs no card, and runs PostgreSQL 18 — meeting the version
 requirement outright. Render's own documentation is treated as authoritative
 over a conflicting third-party source on the free database's grace period.
 
