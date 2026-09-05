@@ -1,0 +1,37 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Virtual environment
+.venv/
+venv/
+env/
+
+# Environment variables
+.env
+
+# Git
+.git/
+.gitignore
+
+# Tests and coverage
+.pytest_cache/
+htmlcov/
+.coverage
+
+# OS
+.DS_Store
+
+# Tool caches
+.ruff_cache/
+.mypy_cache/
+
+# Local database
+src/db.sqlite3
+
+# Local, uncommitted instructions
+CLAUDE.local.md
+.claude/skills/django-mentor/task-format.md
