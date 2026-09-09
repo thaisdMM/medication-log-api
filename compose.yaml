@@ -18,6 +18,8 @@ services:
 
   web:
     build: .
+    volumes:
+      - ./src:/app/src:ro
     environment:
       DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY}
       DJANGO_DEBUG: ${DJANGO_DEBUG}
