@@ -98,7 +98,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         help_text=_("Designates whether the user can log into this Django admin site."),
     )
 
-    objects = UserManager()
+    objects: ClassVar[UserManager] = UserManager()
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS: ClassVar[list[str]] = ["name"]
