@@ -15,6 +15,9 @@ wheels/
 # Local database
 db.sqlite3
 
+# Tests and coverage
+.coverage
+
 # Local, uncommitted instructions
 CLAUDE.local.md
 .claude/skills/django-mentor/task-format.md

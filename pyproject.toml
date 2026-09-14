@@ -26,6 +26,9 @@ dev = [
     "django-stubs[compatible-mypy]>=6.1.0",
     "mypy>=2.3.1",
     "pre-commit>=4.6.2",
+    "pytest>=9.1.1",
+    "pytest-cov>=7.1.0",
+    "pytest-django>=4.14.0",
     "ruff>=0.16.5",
 ]
 
@@ -46,3 +49,13 @@ strict = true
 
 [tool.django-stubs]
 django_settings_module = "config.settings"
+
+[tool.pytest]
+DJANGO_SETTINGS_MODULE = "config.settings"
+pythonpath = ["src"]
+testpaths = ["src"]
+addopts = ["--strict-markers", "-v", "--cov", "--cov-report=term-missing"]
+
+[tool.coverage.run]
+source = ["src"]
+omit = ["*/migrations/*", "*/tests/*", "src/manage.py"]
