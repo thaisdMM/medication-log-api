@@ -29,6 +29,7 @@ onward).
 | 0.9 | Health endpoint, with a test | a URL reports the system is up, verified by an automated test | this is what 0.11 uses to prove the deploy worked; without it, "it's live" is opinion |
 | 0.10 | CI that blocks merge — in two halves | automation runs tests, style and types on every push, **and** a branch protection rule blocks merging without it green. Work moves to branches with pull requests from here | the first half alone blocks nothing: CI goes red and the merge happens anyway |
 | 0.11 | Platform configured, production responding, redeploying on every merge to main | the health endpoint responds publicly, backed by the real Neon database, redeploying automatically on merge | discovering late that the platform doesn't work means redoing configuration, database and CI with the whole project on top |
+| 0.12 | User model behavior tests — done, see [0013](0013-user-model-behavior-tests.md) | an automated test suite for `UserManager.create_user` and `create_superuser`: persistence, uniqueness, validation errors, password hashing, default and admin flags read from the database, and the authentication contract | a regression in user creation, password hashing or authentication surfaces only in production, with no automated signal before it |
 
 ## The rule that spans the whole slice
 
