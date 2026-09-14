@@ -1,8 +1,8 @@
 # Python
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
+**/__pycache__/
+**/*.pyc
+**/*.pyo
+**/*.pyd
 .Python
 
 # Virtual environment
@@ -21,6 +21,7 @@ env/
 .pytest_cache/
 htmlcov/
 .coverage
+src/**/tests/
 
 # OS
 .DS_Store
