@@ -1,4 +1,4 @@
-# syntax=docker/dockerfile:1 
+# syntax=docker/dockerfile:1
 FROM python:3.14.7-slim-trixie AS builder
 
 COPY --from=ghcr.io/astral-sh/uv:0.12.6 /uv /uvx /bin/
@@ -25,6 +25,8 @@ ENV PATH="/app/.venv/bin:$PATH" \
     PYTHONUNBUFFERED=1
 
 WORKDIR /app
+
+RUN false
 
 COPY --from=builder --chown=app:app /app/.venv /app/.venv
 COPY --chown=app:app src/ /app/src/
