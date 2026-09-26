@@ -69,3 +69,31 @@ Slice 1 planning starts once slice 0 is live — one slice planned at a time.
 No feature. Slice 0 is the project's only non-vertical slice, by design. DRF,
 token authentication, the interactive API documentation, and every model but
 the user model belong to slice 1 onward.
+
+## Addendum — 2026-09-26: slice 0 closed
+
+This document is kept as written on 2026-08-27. Nothing above was edited.
+What changed after it was written is recorded here.
+
+1. **Every task is done.** Completion records: 0.5 part 2 —
+   [0008](0008-environment-variable-configuration.md); 0.6 —
+   [0009](0009-production-image-with-granian.md) and
+   [0010](0010-postgres-service-and-required-database-url.md); 0.7 —
+   [0011](0011-custom-user-model-and-first-migration.md); 0.8 —
+   [0012](0012-pytest-and-coverage-report.md); 0.9 —
+   [0014](0014-health-endpoint.md); 0.10 —
+   [0015](0015-ci-workflow-and-branch-protection.md); 0.11 —
+   [0016](0016-production-on-render-and-neon.md). Record numbers follow
+   completion order, which is why 0.12's record (0013) comes before 0.9's.
+2. **"Production redeploys automatically on every merge to main" no longer
+   holds as written.** Render deploys "After CI Checks Pass": every merge
+   to main that runs the CI workflow redeploys. A documentation-only merge
+   skips CI under `paths-ignore`, Render detects no check, and nothing is
+   published. See [0016](0016-production-on-render-and-neon.md).
+3. **The fourth hosting verification did not become task 0.12.** It was
+   closed inside task 0.11 (see `docs/open-questions.md`). The number 0.12
+   went to the user model behavior tests instead.
+4. **PostgreSQL version:** production runs PostgreSQL 18 (`18.6`, from
+   `SELECT version()` in Neon), the same major version as the local
+   container.
+5. **Test coverage:** report only, no minimum threshold — decided by Thaís on 2026-09-17, during task 0.10's planning. Not recorded in 0015.
