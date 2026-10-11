@@ -8,11 +8,11 @@ def healthz(request: HttpRequest) -> JsonResponse:
     """Report whether the application can reach its database.
 
     The response body names which check failed, never why: this endpoint
-    is public and unauthenticated, and a database exception message caries
+    is public and unauthenticated, and a database exception message carries
     the host, the port and the database user.
 
     Args:
-        request: The incomming HTTP request. Unused, required by Django.
+        request: The incoming HTTP request. Unused, required by Django.
 
     Returns:
         JsonResponse: 200 when every check passes,

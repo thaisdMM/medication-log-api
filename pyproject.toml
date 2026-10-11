@@ -9,6 +9,7 @@ authors = [
 requires-python = ">=3.14"
 dependencies = [
     "django[argon2]>=6.1",
+    "djangorestframework>=3.18.3",
     "environs[django]>=15.1.0",
     "granian>=2.8.2",
     "psycopg[binary]>=3.3.5",
@@ -24,6 +25,7 @@ build-backend = "uv_build"
 [dependency-groups]
 dev = [
     "django-stubs[compatible-mypy]>=6.1.0",
+    "djangorestframework-stubs[compatible-mypy]>=3.18.1",
     "mypy>=2.3.1",
     "pre-commit>=4.6.2",
     "pytest>=9.1.1",
@@ -42,7 +44,7 @@ extend-select = ["I", "UP", "C4"]
 [tool.ruff.format]
 
 [tool.mypy]
-plugins = ["mypy_django_plugin.main"]
+plugins = ["mypy_django_plugin.main", "mypy_drf_plugin.main"]
 python_version = "3.14"
 files = ["src"]
 strict = true
