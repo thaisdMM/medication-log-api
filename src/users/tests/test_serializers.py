@@ -1,9 +1,10 @@
 """Tests for the user registration serializer."""
 
 import pytest
+from rest_framework.exceptions import ValidationError
 
 from users.models import User
-from users.serializers import UserRegistrationSerializer
+from users.serializers import DUPLICATE_EMAIL_MESSAGE, UserRegistrationSerializer
 
 
 @pytest.mark.django_db
@@ -86,3 +87,19 @@ def test_password_similar_to_email_is_rejected(
         "The password is too similar to the email address."
         in serializer.errors["password"]
     )
+
+
+@pytest.mark.django_db
+def test_email_taken_after_validation_is_rejected_on_create(
+    registration_data: dict[str, str],
+) -> None:
+    """An email saved between validation and create is a 400, not a crash."""
+    User.objects.create_user(
+        email="ana.ribeiro@example.com", name="Other Name", password="Other-Pass-77"
+    )
+
+    with pytest.raises(ValidationError) as error:
+        UserRegistrationSerializer().create(registration_data)
+
+    assert error.value.detail == {"email": [DUPLICATE_EMAIL_MESSAGE]}
+    assert User.objects.count() == 1

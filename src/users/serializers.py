@@ -4,9 +4,12 @@ from typing import Any
 
 from django.contrib.auth import password_validation
 from django.core.exceptions import ValidationError as DjangoValidationError
+from django.db import IntegrityError, transaction
 from rest_framework import serializers
 
 from users.models import User
+
+DUPLICATE_EMAIL_MESSAGE = "A user with this email address already exists."
 
 
 class UserRegistrationSerializer(serializers.ModelSerializer[User]):
@@ -39,9 +42,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer[User]):
         """
         email = User.objects.normalize_email(value)
         if User.objects.filter(email=email).exists():
-            raise serializers.ValidationError(
-                "A user with this email address already exists."
-            )
+            raise serializers.ValidationError(DUPLICATE_EMAIL_MESSAGE)
         return email
 
     def validate(self, attrs: dict[str, Any]) -> dict[str, Any]:
@@ -68,14 +69,27 @@ class UserRegistrationSerializer(serializers.ModelSerializer[User]):
     def create(self, validated_data: dict[str, Any]) -> User:
         """Create the account with a hashed password.
 
+        The email check in validate_email cannot see an account saved by a
+        concurrent sign-up, so the database's unique constraint is caught here
+        and reported as the same duplicate email error.
+
         Args:
             validated_data: Email, name and password that passed validation
 
         Returns:
             User: The created user instance
+
+        Raises:
+            ValidationError: when the email was taken after validation
         """
-        return User.objects.create_user(
-            email=validated_data["email"],
-            name=validated_data["name"],
-            password=validated_data["password"],
-        )
+        try:
+            with transaction.atomic():
+                return User.objects.create_user(
+                    email=validated_data["email"],
+                    name=validated_data["name"],
+                    password=validated_data["password"],
+                )
+        except IntegrityError as error:
+            raise serializers.ValidationError(
+                {"email": [DUPLICATE_EMAIL_MESSAGE]}
+            ) from error
