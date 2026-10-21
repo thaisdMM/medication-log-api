@@ -24,6 +24,9 @@ class UserManager(BaseUserManager["User"]):
     ) -> User:
         """Create and save a regular user with hashed password.
 
+        The whole email address is stored in lowercase, so one address maps
+        to one account whatever the case it is typed in.
+
         Args:
             email: User's email address (will be the login identifier)
             name: User's name
@@ -42,7 +45,7 @@ class UserManager(BaseUserManager["User"]):
         if not password:
             raise ValueError("Password must be provided to create an account.")
 
-        email = self.normalize_email(email)
+        email = self.normalize_email(email).lower()
         user = self.model(email=email, name=name)
         user.set_password(password)
         user.save(using=self._db)

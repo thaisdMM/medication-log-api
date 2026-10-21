@@ -71,12 +71,12 @@ def test_user_email_uniqueness_enforced_at_database_level(
 
 @pytest.mark.django_db
 def test_create_user_normalizes_email(valid_user_data: dict[str, str]) -> None:
-    """Email is normalized at user creation."""
+    """The whole email is stored in lowercase at user creation."""
     user = User.objects.create_user(
         **{**valid_user_data, "email": "NORMAlized@EMAIL.COM"}
     )
 
-    assert user.email == "NORMAlized@email.com"
+    assert user.email == "normalized@email.com"
 
 
 @pytest.mark.django_db
