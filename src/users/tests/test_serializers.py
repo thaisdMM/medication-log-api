@@ -51,6 +51,22 @@ def test_duplicate_email_with_uppercase_domain_is_rejected(
 
 
 @pytest.mark.django_db
+def test_duplicate_email_with_uppercase_local_part_is_rejected(
+    registration_data: dict[str, str],
+) -> None:
+    """Same address with the local part in uppercase is a duplicate."""
+    User.objects.create_user(
+        email="ana.ribeiro@example.com", name="Other Name", password="Other-Pass-77"
+    )
+    serializer = UserRegistrationSerializer(
+        data={**registration_data, "email": "ANA.RIBEIRO@example.com"}
+    )
+
+    assert not serializer.is_valid()
+    assert serializer.errors["email"] == [DUPLICATE_EMAIL_MESSAGE]
+
+
+@pytest.mark.django_db
 def test_password_similar_to_name_is_rejected(
     registration_data: dict[str, str],
 ) -> None:

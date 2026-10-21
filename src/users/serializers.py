@@ -16,8 +16,8 @@ class UserRegistrationSerializer(serializers.ModelSerializer[User]):
     """Validate sign-up data and create the account through the user manager.
 
     Attributes:
-        email: Login identifier, with the domain normalized before the
-            uniqueness check
+        email: Login identifier, stored in lowercase and checked for
+            uniqueness in that form
         password: Plain text password, accepted on input and never returned
     """
 
@@ -29,18 +29,18 @@ class UserRegistrationSerializer(serializers.ModelSerializer[User]):
         fields = ("id", "email", "name", "password")
 
     def validate_email(self, value: str) -> str:
-        """Normalize the email domain and refuse an address already in use.
+        """Lowercase the email and refuse an address already in use.
 
         Args:
             value: Email address as sent, already trimmed and format-checked
 
         Returns:
-            str: The email address with its domain in lowercase
+            str: The whole email address in lowercase, as the manager stores it
 
         Raises:
             ValidationError: when an account with this email address exists
         """
-        email = User.objects.normalize_email(value)
+        email = User.objects.canonical_email(value)
         if User.objects.filter(email=email).exists():
             raise serializers.ValidationError(DUPLICATE_EMAIL_MESSAGE)
         return email

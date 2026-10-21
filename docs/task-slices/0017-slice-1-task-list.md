@@ -36,8 +36,9 @@ enters inside an existing one, or appended at the end (1.9 onward).
   versions before adoption.
 * Logout through the blacklist app. It invalidates refresh tokens only; an
   issued access token stays valid until it expires — 15 minutes.
-* Email case is kept as Django normalizes it (domain only): invitations in
-  slice 5 must match the email exactly.
+* The whole email is stored in lowercase: one account per address, whatever
+  the case it is typed in, and login and the slice 5 invitations compare the
+  same form.
 * Minimum password length: Django's default, 8.
 * Documentation: `drf-spectacular` — DRF's built-in schema generation is
   deprecated in its favour.
