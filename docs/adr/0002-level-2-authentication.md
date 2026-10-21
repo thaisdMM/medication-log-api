@@ -34,8 +34,8 @@ authentication itself — Django ships a user system — but the three things th
 come with it:
 
 * **Token authentication on the API.** A REST API carries no browser session,
-  so the client sends a token on every request. Which library is not decided
-  (`docs/open-questions.md`).
+  so the client sends a token on every request. The library is decided in
+  ADR 0007.
 * **Owner filtering in every query.** Forgetting it in a single view leaks one
   account's data to another (ADR 0005).
 * **Doubled tests.** Every endpoint needs one test as the data owner and one as
