@@ -8,5 +8,5 @@ from ops.views import healthz
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("healthz/", healthz, name="healthz"),
-    path("api/users/", include("users.urls")),
+    path("api/", include("users.urls")),
 ]

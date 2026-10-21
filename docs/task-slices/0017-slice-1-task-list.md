@@ -24,18 +24,17 @@ enters inside an existing one, or appended at the end (1.9 onward).
 | 1.1 | DRF installed and configured | DRF in `INSTALLED_APPS`, with authenticated-only as the default permission; CI green, `/healthz/` still 200 in production. Branch and pull request | an open default leaves any endpoint that forgets its own permission public |
 | 1.2 | Registration serializer | validates email, name and password, runs Django's password validators, creates the account through `create_user` — tested without HTTP | `create_user` does not run password validators; if the serializer doesn't, any password is accepted, silently |
 | 1.3 | Registration endpoint | `POST /api/users/`, public: 201 on success, 400 naming the problem on a duplicate email or a weak password, never a 500; the password never appears in a response | a public endpoint inside a closed default returns 401 to everyone trying to sign up |
-| 1.4 | `simplejwt` and the token endpoints | `POST /api/token/` returns an access and a refresh token; `POST /api/token/refresh/` issues a new access token. Access 15 minutes, refresh 1 day. Branch and pull request | JWT becomes the authentication class for every endpoint that follows |
+| 1.4 | `knox` and the login endpoint | `POST /api/auth/login/` exchanges an email and password for a token that expires 10 hours later; knox's own migrations create its token table. Branch and pull request | knox becomes the authentication class for every endpoint that follows |
 | 1.5 | "My account" endpoint | `GET /api/users/me/` returns the id, email and name behind the token — 200 with one, 401 without | without it, nothing in slice 1 proves a token authenticates anything |
-| 1.6 | Logout through the token blacklist | `POST /api/token/blacklist/` invalidates a refresh token, and refreshing with it afterwards is refused; the blacklist tables are created in production by the migrate-on-start command. Branch and pull request | the app installed without its migration makes login itself fail, not just logout |
+| 1.6 | Logout through knox | `POST /api/auth/logout/` deletes the token in use and `POST /api/auth/logoutall/` deletes every token of the account; a request with a deleted token is refused. Branch and pull request | a logout that does not delete the token leaves it valid until it expires |
 | 1.7 | Interactive API documentation | `drf-spectacular` serves the schema and a public Swagger UI page listing every slice 1 endpoint, with token authorization. Branch and pull request | the page inherits 1.1's closed default unless explicitly public — the link gives a 401 |
-| 1.8 | Slice proven in production | register, token, me, refresh and logout run against the public address; the slice closes in its record | without it, "slice 1 is live" is opinion |
+| 1.8 | Slice proven in production | register, login, me and logout run against the public address; the slice closes in its record | without it, "slice 1 is live" is opinion |
 
 ## Decisions
 
-* Token: `djangorestframework-simplejwt`, verified against this project's
-  versions before adoption.
-* Logout through the blacklist app. It invalidates refresh tokens only; an
-  issued access token stays valid until it expires — 15 minutes.
+* Token: `django-rest-knox` (ADR 0007).
+* Logout through knox's logout and logout-all views. The token is deleted on
+  the server, so it stops working at once — no blacklist.
 * The whole email is stored in lowercase: one account per address, whatever
   the case it is typed in, and login and the slice 5 invitations compare the
   same form.
