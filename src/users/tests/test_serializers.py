@@ -6,16 +6,6 @@ from users.models import User
 from users.serializers import UserRegistrationSerializer
 
 
-@pytest.fixture
-def registration_data() -> dict[str, str]:
-    """Valid sign-up data that every password validator accepts."""
-    return {
-        "email": "ana.ribeiro@example.com",
-        "name": "Ana Ribeiro",
-        "password": "Blue-Kettle-42",
-    }
-
-
 @pytest.mark.django_db
 def test_password_is_saved_hashed(registration_data: dict[str, str]) -> None:
     """Saved password is a hash that matches the one sent."""
