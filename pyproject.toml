@@ -8,6 +8,7 @@ authors = [
 ]
 requires-python = ">=3.14"
 dependencies = [
+    "django-rest-knox>=5.1.0",
     "django[argon2]>=6.1",
     "djangorestframework>=3.18.3",
     "environs[django]>=15.1.0",
@@ -48,6 +49,10 @@ plugins = ["mypy_django_plugin.main", "mypy_drf_plugin.main"]
 python_version = "3.14"
 files = ["src"]
 strict = true
+
+[[tool.mypy.overrides]]
+module = ["knox.*"]
+ignore_missing_imports = true
 
 [tool.django-stubs]
 django_settings_module = "config.settings"

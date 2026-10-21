@@ -1,9 +1,10 @@
-"""URL configuration for the user account endpoints."""
+"""URL configuration for the user account and token authentication endpoints."""
 
 from django.urls import path
 
-from users.views import UserRegistrationView
+from users.views import LoginView, UserRegistrationView
 
 urlpatterns = [
-    path("", UserRegistrationView.as_view(), name="user-register"),
+    path("users/", UserRegistrationView.as_view(), name="user-register"),
+    path("auth/login/", LoginView.as_view(), name="auth-login"),
 ]

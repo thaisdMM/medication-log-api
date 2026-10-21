@@ -2,7 +2,7 @@
 
 from typing import Any
 
-from django.contrib.auth import password_validation
+from django.contrib.auth import authenticate, password_validation
 from django.core.exceptions import ValidationError as DjangoValidationError
 from django.db import IntegrityError, transaction
 from rest_framework import serializers
@@ -10,10 +10,14 @@ from rest_framework import serializers
 from users.models import User
 
 DUPLICATE_EMAIL_MESSAGE = "A user with this email address already exists."
+INVALID_CREDENTIALS_MESSAGE = "Unable to log in with the provided credentials."
 
 
 class UserRegistrationSerializer(serializers.ModelSerializer[User]):
     """Validate sign-up data and create the account through the user manager.
+
+    Only the id is returned: email and name are accepted on input and never
+    echoed back, so a response carries no personal data it does not need.
 
     Attributes:
         email: Login identifier, stored in lowercase and checked for
@@ -21,7 +25,8 @@ class UserRegistrationSerializer(serializers.ModelSerializer[User]):
         password: Plain text password, accepted on input and never returned
     """
 
-    email = serializers.EmailField(max_length=255)
+    email = serializers.EmailField(max_length=255, write_only=True)
+    name = serializers.CharField(max_length=255, write_only=True)
     password = serializers.CharField(write_only=True, style={"input_type": "password"})
 
     class Meta:
@@ -93,3 +98,39 @@ class UserRegistrationSerializer(serializers.ModelSerializer[User]):
             raise serializers.ValidationError(
                 {"email": [DUPLICATE_EMAIL_MESSAGE]}
             ) from error
+
+
+class LoginSerializer(serializers.Serializer[User]):
+    """Check an email and password pair and resolve the account behind it.
+
+    Attributes:
+        email: Login identifier, compared in its canonical form
+        password: Plain text password, accepted on input and never returned
+    """
+
+    email = serializers.EmailField(max_length=255)
+    password = serializers.CharField(write_only=True, style={"input_type": "password"})
+
+    def validate(self, attrs: dict[str, Any]) -> dict[str, Any]:
+        """Authenticate the credentials and add the account to the data.
+
+        Unknown email, wrong password and inactive account all fail with the
+        same message, so a login attempt cannot tell which accounts exist.
+
+        Args:
+            attrs: Email and password that passed field-level validation
+
+        Returns:
+            dict[str, Any]: The same field values, plus the account as "user"
+
+        Raises:
+            ValidationError: when the credentials do not match an active account
+        """
+        user = authenticate(
+            self.context.get("request"),
+            email=User.objects.canonical_email(attrs["email"]),
+            password=attrs["password"],
+        )
+        if user is None:
+            raise serializers.ValidationError(INVALID_CREDENTIALS_MESSAGE)
+        return {**attrs, "user": user}

@@ -1,5 +1,8 @@
 """Tests for the project-wide Django REST framework configuration."""
 
+import pytest
+from django.test import Client
+from django.urls import reverse
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.test import APIRequestFactory
@@ -27,5 +30,14 @@ def test_view_without_permission_classes_refuses_anonymous_request() -> None:
 
     response = ViewWithoutPermissionClasses.as_view()(request)
 
-    assert response.status_code == 403
+    assert response.status_code == 401
+    assert response["WWW-Authenticate"].startswith("Token")
     assert response.data == {"detail": "Authentication credentials were not provided."}
+
+
+@pytest.mark.django_db
+def test_html_is_not_an_available_format(client: Client) -> None:
+    """Only JSON is rendered: the browsable API page is turned off."""
+    response = client.post(reverse("user-register"), HTTP_ACCEPT="text/html")
+
+    assert response.status_code == 406

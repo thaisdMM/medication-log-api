@@ -1,5 +1,5 @@
 version = 1
-revision = 3
+revision = 5
 requires-python = ">=3.14"
 resolution-markers = [
     "python_full_version >= '3.15'",
@@ -347,6 +347,19 @@ wheels = [
 ]
 
 [[package]]
+name = "django-rest-knox"
+version = "5.1.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "django" },
+    { name = "djangorestframework" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/45/8d/14c8e67495f0e01fd26929c34d2fbebd910c20f9f3dcc268fadb93a009ec/django_rest_knox-5.1.0.tar.gz", hash = "sha256:78307dce32858679fe96afb06c4ab2d4fe0ed085c7a739a7ccc03a14dea2b37b", size = 20973, upload-time = "2026-07-12T12:02:34.482Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/1d/20/188535a919c642a20fef171571e5b3470c3323c4be952602e709a0790edf/django_rest_knox-5.1.0-py3-none-any.whl", hash = "sha256:7dad21e91091db07796ea96f559fd2e1f67b8d42748d4e140d2fa7a0319538e7", size = 16044, upload-time = "2026-07-12T12:02:33.249Z" },
+]
+
+[[package]]
 name = "django-stubs"
 version = "6.1.0"
 source = { registry = "https://pypi.org/simple" }
@@ -594,6 +607,7 @@ version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "django", extra = ["argon2"] },
+    { name = "django-rest-knox" },
     { name = "djangorestframework" },
     { name = "environs", extra = ["django"] },
     { name = "granian" },
@@ -615,6 +629,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "django", extras = ["argon2"], specifier = ">=6.1" },
+    { name = "django-rest-knox", specifier = ">=5.1.0" },
     { name = "djangorestframework", specifier = ">=3.18.3" },
     { name = "environs", extras = ["django"], specifier = ">=15.1.0" },
     { name = "granian", specifier = ">=2.8.2" },

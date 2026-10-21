@@ -18,18 +18,14 @@ def test_password_is_saved_hashed(registration_data: dict[str, str]) -> None:
     assert user.check_password("Blue-Kettle-42")
 
 
-def test_output_never_contains_password() -> None:
-    """Serialized output holds id, email and name, and no password."""
+def test_output_holds_only_the_id() -> None:
+    """Serialized output holds the id, and no password, email or name."""
     user = User(id=1, email="ana.ribeiro@example.com", name="Ana Ribeiro")
     user.set_password("Blue-Kettle-42")
 
     serializer = UserRegistrationSerializer(instance=user)
 
-    assert serializer.data == {
-        "id": 1,
-        "email": "ana.ribeiro@example.com",
-        "name": "Ana Ribeiro",
-    }
+    assert serializer.data == {"id": 1}
 
 
 @pytest.mark.django_db
