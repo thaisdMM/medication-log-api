@@ -16,6 +16,22 @@ class UserManager(BaseUserManager["User"]):
 
     use_in_migrations = True
 
+    @classmethod
+    def canonical_email(cls, email: str) -> str:
+        """Return the form in which an email address is stored and compared.
+
+        The whole address is lowercased, not only the domain as Django's
+        normalize_email does, so one address maps to one account whatever the
+        case it is typed in.
+
+        Args:
+            email: Email address as typed
+
+        Returns:
+            str: The whole email address in lowercase
+        """
+        return cls.normalize_email(email).lower()
+
     def create_user(
         self,
         email: str,
@@ -24,8 +40,7 @@ class UserManager(BaseUserManager["User"]):
     ) -> User:
         """Create and save a regular user with hashed password.
 
-        The whole email address is stored in lowercase, so one address maps
-        to one account whatever the case it is typed in.
+        The email is stored in its canonical form (see canonical_email).
 
         Args:
             email: User's email address (will be the login identifier)
@@ -45,7 +60,7 @@ class UserManager(BaseUserManager["User"]):
         if not password:
             raise ValueError("Password must be provided to create an account.")
 
-        email = self.normalize_email(email).lower()
+        email = self.canonical_email(email)
         user = self.model(email=email, name=name)
         user.set_password(password)
         user.save(using=self._db)

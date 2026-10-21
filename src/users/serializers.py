@@ -40,7 +40,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer[User]):
         Raises:
             ValidationError: when an account with this email address exists
         """
-        email = User.objects.normalize_email(value).lower()
+        email = User.objects.canonical_email(value)
         if User.objects.filter(email=email).exists():
             raise serializers.ValidationError(DUPLICATE_EMAIL_MESSAGE)
         return email
