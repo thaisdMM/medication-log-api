@@ -32,15 +32,12 @@ class ProtectedView(APIView):
 
 @pytest.mark.django_db
 def test_login_returns_only_expiry_and_token(
-    client: Client, existing_account: User, registration_data: dict[str, str]
+    client: Client, existing_account: User, login_data: dict[str, str]
 ) -> None:
     """A valid login answers with the token and its expiry, and no account data."""
     response = client.post(
         reverse("auth-login"),
-        {
-            "email": registration_data["email"],
-            "password": registration_data["password"],
-        },
+        login_data,
         content_type="application/json",
     )
 
@@ -81,12 +78,12 @@ def test_failed_login_gives_the_same_answer(
 
 @pytest.mark.django_db
 def test_login_with_email_in_mixed_case_succeeds(
-    client: Client, existing_account: User, registration_data: dict[str, str]
+    client: Client, existing_account: User, login_data: dict[str, str]
 ) -> None:
     """The email is compared in its canonical form, whatever the case typed."""
     response = client.post(
         reverse("auth-login"),
-        {"email": "Ana.Ribeiro@Example.com", "password": registration_data["password"]},
+        {**login_data, "email": "Ana.Ribeiro@Example.com"},
         content_type="application/json",
     )
 
@@ -95,15 +92,12 @@ def test_login_with_email_in_mixed_case_succeeds(
 
 @pytest.mark.django_db
 def test_login_token_authenticates_a_protected_view(
-    client: Client, existing_account: User, registration_data: dict[str, str]
+    client: Client, existing_account: User, login_data: dict[str, str]
 ) -> None:
     """The token from the login is accepted by an endpoint that needs one."""
     token = client.post(
         reverse("auth-login"),
-        {
-            "email": registration_data["email"],
-            "password": registration_data["password"],
-        },
+        login_data,
         content_type="application/json",
     ).json()["token"]
     request = APIRequestFactory().get("/", HTTP_AUTHORIZATION=f"Token {token}")
@@ -116,16 +110,13 @@ def test_login_token_authenticates_a_protected_view(
 
 @pytest.mark.django_db
 def test_login_token_expires_ten_hours_after_login(
-    client: Client, existing_account: User, registration_data: dict[str, str]
+    client: Client, existing_account: User, login_data: dict[str, str]
 ) -> None:
     """The token lifetime is 10 hours from the login."""
     before = timezone.now()
     response = client.post(
         reverse("auth-login"),
-        {
-            "email": registration_data["email"],
-            "password": registration_data["password"],
-        },
+        login_data,
         content_type="application/json",
     )
     after = timezone.now()

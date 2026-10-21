@@ -22,6 +22,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer[User]):
     Attributes:
         email: Login identifier, stored in lowercase and checked for
             uniqueness in that form
+        name: Account holder's name, accepted on input and never returned
         password: Plain text password, accepted on input and never returned
     """
 

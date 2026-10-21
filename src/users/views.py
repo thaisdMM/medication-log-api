@@ -14,7 +14,7 @@ class UserRegistrationView(generics.CreateAPIView[User]):
     """Create an account from sign-up data, open to anonymous requests.
 
     Attributes:
-        authentication_classes: None, so a stale or invalid token sent along
+        authentication_classes: Empty, so a stale or invalid token sent along
             with a sign-up does not turn it into a 401
         permission_classes: Public, overriding the project's closed default
     """
@@ -32,7 +32,7 @@ class LoginView(KnoxLoginView):  # type: ignore[misc]
     is created.
 
     Attributes:
-        authentication_classes: None, so a stale or invalid token sent along
+        authentication_classes: Empty, so a stale or invalid token sent along
             with a login does not turn it into a 401
         permission_classes: Public, overriding the project's closed default
     """

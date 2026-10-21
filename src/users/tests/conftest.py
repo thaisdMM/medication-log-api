@@ -19,3 +19,12 @@ def registration_data() -> dict[str, str]:
         "name": "Ana Ribeiro",
         "password": "Blue-Kettle-42",
     }
+
+
+@pytest.fixture
+def login_data(registration_data: dict[str, str]) -> dict[str, str]:
+    """Credentials of the account created from the sign-up data."""
+    return {
+        "email": registration_data["email"],
+        "password": registration_data["password"],
+    }
