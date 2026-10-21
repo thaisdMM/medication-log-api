@@ -96,15 +96,6 @@ Do not assume any of these exist. Check before referencing them.
 12. **Never run commands that modify state without permission.**
     This includes installs, file deletions, and edits to configuration files.
 
-13. **The code is written and the project commands are run by the developer,
-    never by the AI.**
-    Phase 1, restriction R3. Do not run the application, the test suite,
-    migrations, installs, or git operations. Effort estimates for every task
-    assume this constraint holds.
-
-    Reading files and inspecting the repository are not project commands —
-    rule 2 requires them.
-
 ## Rule 1 vs Rule 5 — clarification
 
 These rules look similar but cover different situations:
