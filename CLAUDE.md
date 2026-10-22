@@ -4,13 +4,28 @@
 
 Single repository. Application code lives in `src/`.
 
-The stack versions are deliberately not listed here — a version written into
+The stack and tools are deliberately not listed here — anything written into
 this file goes stale and becomes the exact error rule 10 exists to prevent.
-They live in `pyproject.toml` (declared floor) and `uv.lock` (resolved version).
 
-Decided but **not yet built**: pytest with coverage reporting, Docker and
-Docker Compose with PostgreSQL, continuous integration that blocks merge.
-Do not assume any of these exist. Check before referencing them.
+## Project documentation
+
+**Read at the start of every task:**
+
+- `pyproject.toml` — the stack, the tools, and their declared versions.
+- `docs/task-slices/0001-roadmap.md` — what the whole project plans to build.
+- The most recent slice task list in `docs/task-slices/`
+  (`NNNN-slice-N-task-list.md`) — what the current slice proposes.
+
+**Read only when the task touches the subject:**
+
+- `GLOSSARY.md` — naming anything in the domain.
+- `docs/domain-model.md` — models, fields, required values.
+- `docs/api-behaviour.md` and `docs/definition-of-done.md` — any endpoint.
+- `docs/open-questions.md` — before deciding anything in the current slice.
+- `docs/non-goals.md` — when scope is in doubt.
+- `docs/adr/` — list the filenames first; each name states its decision. Open
+  only the ADRs whose name matches the subject of the task.
+- Earlier task records in `docs/task-slices/` — only when needed.
 
 ## Absolute rules — apply to every persona, every session
 
