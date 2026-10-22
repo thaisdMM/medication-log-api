@@ -101,6 +101,20 @@ class UserRegistrationSerializer(serializers.ModelSerializer[User]):
             ) from error
 
 
+class CurrentUserSerializer(serializers.ModelSerializer[User]):
+    """Represent the account behind the token.
+
+    Attributes:
+        id: Account identifier
+        name: Account holder's name
+    """
+
+    class Meta:
+        model = User
+        fields = ("id", "name")
+        read_only_fields = fields
+
+
 class LoginSerializer(serializers.Serializer[User]):
     """Check an email and password pair and resolve the account behind it.
 

@@ -7,7 +7,11 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 
 from users.models import User
-from users.serializers import LoginSerializer, UserRegistrationSerializer
+from users.serializers import (
+    CurrentUserSerializer,
+    LoginSerializer,
+    UserRegistrationSerializer,
+)
 
 
 class UserRegistrationView(generics.CreateAPIView[User]):
@@ -22,6 +26,22 @@ class UserRegistrationView(generics.CreateAPIView[User]):
     serializer_class = UserRegistrationSerializer
     authentication_classes = ()
     permission_classes = (AllowAny,)
+
+
+class CurrentUserView(generics.RetrieveAPIView[User]):
+    """Return the account behind the token in use."""
+
+    serializer_class = CurrentUserSerializer
+
+    def get_object(self) -> User:
+        """Return the authenticated account instead of looking one up by URL.
+
+        Returns:
+            User: The account the token belongs to
+        """
+        user = self.request.user
+        assert isinstance(user, User)
+        return user
 
 
 class LoginView(KnoxLoginView):  # type: ignore[misc]
