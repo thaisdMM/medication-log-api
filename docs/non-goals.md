@@ -13,7 +13,7 @@ A UI is the project's largest scope multiplier, estimated at 40–50% of total
 time. A REST API without a UI is not an incomplete API.
 
 What solves visibility instead: published interactive API documentation plus
-the README walkthrough (ADR 0013).
+the README walkthrough (ADR 0014).
 
 ## 2. Anything that makes it a clinical tool
 
@@ -40,7 +40,7 @@ system, not an account type.
 
 ## 4. A second external integration
 
-Exactly one exists: Telegram, query mode, by webhook (ADR 0011).
+Exactly one exists: Telegram, query mode, by webhook (ADR 0012).
 
 Sign-in with Google or GitHub is out, because it would be the second. If email
 ever sends for real in production the project has two, and the one-integration
@@ -49,7 +49,7 @@ constraint must be revoked explicitly before that happens.
 ## 5. Real email delivery
 
 Nobody receives email. The destination is the console, production included
-(ADR 0012).
+(ADR 0013).
 
 The invitation notice goes through the sending abstraction, and with no
 provider configured the invitation works identically.
@@ -75,7 +75,7 @@ coexisting on one row.
 
 A declined invitation can be remade, and the system does not count attempts.
 
-There is at most one sharing row per pair of accounts (ADR 0009). Remaking a
+There is at most one sharing row per pair of accounts (ADR 0010). Remaking a
 declined invitation is that row returning to pending.
 
 ## 9. Editing by anyone who is not the data owner
@@ -111,7 +111,7 @@ A name typed wrong is accepted as typed. Not the system's responsibility.
 The name is stored exactly as typed and returned unchanged — no upper-, lower-
 or title-casing.
 
-**Not to be confused:** the duplicate comparison ignores case (ADR 0007).
+**Not to be confused:** the duplicate comparison ignores case (ADR 0008).
 `Dipirona` and then `dipirona` is a duplicate, and the second is refused, while
 the first keeps the spelling it was given.
 
@@ -154,7 +154,7 @@ here.
 ## 17. A permanent background worker
 
 No process running around the clock waiting on a queue. This is why Telegram
-works by webhook rather than long polling (ADR 0011), and it follows from the
+works by webhook rather than long polling (ADR 0012), and it follows from the
 free hosting decision (ADR 0001).
 
 **Not excluded — a scheduled task is allowed.** A permanent worker is a second
@@ -212,4 +212,4 @@ This is a Python web backend project, and the portfolio exists to prove that.
 
 **Not excluded, and this is the boundary:** consuming an external service from
 the backend and serving the result through the API — exactly what Telegram does
-(ADR 0011).
+(ADR 0012).

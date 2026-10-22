@@ -30,7 +30,7 @@ message saying what is missing. Written by hand, a forgotten filter produced an
 endpoint that worked and leaked another account's data in silence, passing the
 tests written with a single account.
 
-It is the same reasoning as the duplicate constraint (ADR 0007): instead of
+It is the same reasoning as the duplicate constraint (ADR 0008): instead of
 trusting that nobody will get it wrong, the mistake is made impossible to go
 unnoticed.
 
