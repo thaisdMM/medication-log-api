@@ -6,28 +6,9 @@ import pytest
 from django.test import Client
 from django.urls import reverse
 from django.utils import timezone
-from rest_framework.request import Request
-from rest_framework.response import Response
-from rest_framework.test import APIRequestFactory
-from rest_framework.views import APIView
 
 from users.models import User
 from users.serializers import INVALID_CREDENTIALS_MESSAGE
-
-
-class ProtectedView(APIView):
-    """Stands in for any endpoint behind the project's closed default."""
-
-    def get(self, request: Request) -> Response:
-        """Return the id of the authenticated account.
-
-        Args:
-            request: The incoming API request.
-
-        Returns:
-            Response: 200 with the account id.
-        """
-        return Response({"id": request.user.pk})
 
 
 @pytest.mark.django_db
@@ -91,21 +72,20 @@ def test_login_with_email_in_mixed_case_succeeds(
 
 
 @pytest.mark.django_db
-def test_login_token_authenticates_a_protected_view(
+def test_login_token_reaches_the_current_user_endpoint(
     client: Client, existing_account: User, login_data: dict[str, str]
 ) -> None:
-    """The token from the login is accepted by an endpoint that needs one."""
+    """The token from the login authenticates the account that logged in."""
     token = client.post(
         reverse("auth-login"),
         login_data,
         content_type="application/json",
     ).json()["token"]
-    request = APIRequestFactory().get("/", HTTP_AUTHORIZATION=f"Token {token}")
 
-    response = ProtectedView.as_view()(request)
+    response = client.get(reverse("user-me"), HTTP_AUTHORIZATION=f"Token {token}")
 
     assert response.status_code == 200
-    assert response.data == {"id": existing_account.pk}
+    assert response.json()["id"] == existing_account.pk
 
 
 @pytest.mark.django_db
