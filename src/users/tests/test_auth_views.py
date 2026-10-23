@@ -6,6 +6,7 @@ import pytest
 from django.test import Client
 from django.urls import reverse
 from django.utils import timezone
+from knox.models import AuthToken
 
 from users.models import User
 from users.serializers import INVALID_CREDENTIALS_MESSAGE
@@ -104,3 +105,31 @@ def test_login_token_expires_ten_hours_after_login(
     expiry = datetime.fromisoformat(response.json()["expiry"])
 
     assert before + timedelta(hours=10) <= expiry <= after + timedelta(hours=10)
+
+
+@pytest.mark.django_db
+def test_expired_token_is_rejected(client: Client, account_token: str) -> None:
+    """A token whose expiry has passed gets 401 on the current user endpoint."""
+    AuthToken.objects.update(expiry=timezone.now() - timedelta(seconds=1))
+
+    response = client.get(
+        reverse("user-me"), HTTP_AUTHORIZATION=f"Token {account_token}"
+    )
+
+    assert response.status_code == 401
+
+
+@pytest.mark.django_db
+def test_using_a_token_does_not_move_its_expiry(
+    client: Client, account_token: str
+) -> None:
+    """Using a token leaves its expiry where it was."""
+    expiry = timezone.now() + timedelta(hours=1)
+    AuthToken.objects.update(expiry=expiry)
+
+    response = client.get(
+        reverse("user-me"), HTTP_AUTHORIZATION=f"Token {account_token}"
+    )
+
+    assert response.status_code == 200
+    assert AuthToken.objects.get().expiry == expiry
