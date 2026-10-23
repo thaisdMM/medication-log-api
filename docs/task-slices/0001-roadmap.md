@@ -1,12 +1,111 @@
 # Roadmap — the map of slices
 
-**Date:** 2026-08-26
+> **Revision 2 — 2026-10-23.** The plan was cut down to a first release in
+> two milestones. This revision is the current plan. Revision 1
+> (2026-08-26), the original eight-slice plan, is kept unchanged at the
+> [end of this document](#revision-1--2026-08-26).
 
 This is the execution order of the project, slice by slice, with the reason
 for each position. It carries no tasks, no step-by-step, no hour estimates —
 each slice is detailed once the previous one is live.
 
-## The map
+Slice numbers are kept from revision 1, so every "slice N" reference
+elsewhere in the docs stays valid. Slices 3, 4 and 5 moved to the later
+release.
+
+## First release
+
+### Milestone 1 — accounts, medications and README
+
+| # | Slice | What exists at the end that did not exist before |
+|---|---|---|
+| 0 | Tooling, user model, address live | done — reproducible environment, CI that blocks merge, a production URL responding, the custom user model migrated |
+| 1 | Registration and token login | an account signs up with email and password, requests a token, uses it, and logs out; the interactive API documentation is live; the whole flow is proven in production |
+| 2 | Medication — the project's core | an account registers its own medications, never sees anyone else's, cannot register the same one twice, gets 404 on what isn't theirs. Built as designed in `docs/domain-model.md`, with the concentration unit list closed at mg · g · ml · other |
+| 6 | README and verification walkthrough | whoever gets the link can run, alone, the sequence that ends in 404, and read the project's decisions, non-goals included |
+
+### Milestone 2 — Telegram
+
+| # | Slice | What exists at the end that did not exist before |
+|---|---|---|
+| 7 | Telegram | a command to the bot returns the sender's own medication list; the README is updated as the slice's last task |
+
+## Why this order
+
+**Slice 0 first**, because two of its parts are practically irreversible: the
+user model and the deploy platform. Done.
+
+**Authentication next**, because nothing below it has an owner — every table
+carries, directly or indirectly, the account it belongs to.
+
+**Medication before everything else**, because it is where the project proves
+what it exists to prove. Three structural pieces are born together here: the
+owner column, the single-point owner filter, and the database-level duplicate
+constraint. The filter answers one question only — "is this yours?" — and
+lives in one place, so a later second question touches that one place. The
+experiment on form defaults (`docs/open-questions.md`) is this slice's first
+task.
+
+**README at the end of milestone 1**, because the walkthrough documents what
+exists. The README itself is kept current from now on: it is refreshed
+before task 1.6 to describe what is live, and slice 6 adds the verification
+walkthrough.
+
+**Telegram last**, because it is the only slice with an open blocker — how
+the backend confirms which account a conversation belongs to — and it is not
+the project's shop window.
+
+## The rule that makes a slice vertical
+
+Slices 1, 2 and 7 each cross the whole stack, in this order:
+
+> model → migration → serializer → endpoint → permission rule → tests →
+> CI green → **production deploy responding**
+
+No slice ends before its endpoint responds in production. The next slice does
+not start before the current one is live.
+
+**Three declared exceptions:**
+1. Slice 0 is not vertical — tooling, not a feature.
+2. Slice 6 is not vertical — a document, not a feature.
+3. The user model is created outside the slice that uses it, in slice 0 — the
+   only model born before its feature.
+
+**The named trap:** building the medication model in slice 2 makes it tempting
+to also create the usage-period model, since it points back by foreign key.
+The usage-period model belongs to the later release and is not created in the
+first one.
+
+## Later release
+
+Kept designed, not scheduled:
+
+| # | Slice | What exists at the end that did not exist before |
+|---|---|---|
+| 3 | Usage period | an account logs when it took each medication; ownership is discovered through the medication |
+| 4 | Disease | a disease table only the admin feeds; an account marks its own. Brings the admin panel and static files in production |
+| 5 | Sharing | one account invites another, with scope; the invitee accepts, reads what was granted; the owner ends it at will |
+
+The order between them still holds:
+
+- **Usage period before disease** — it is the only resource whose owner is
+  indirect, so a defect in the single-point filter surfaces there first.
+- **Sharing last** — it carries the largest rework risk: permission gains a
+  second question ("do you have access, and to what?"). Slice 2's single-point
+  owner filter is where that change lands, so it touches one place instead of
+  every endpoint.
+
+---
+
+## Revision 1 — 2026-08-26
+
+Kept as written on 2026-08-26; only heading levels changed.
+
+This is the execution order of the project, slice by slice, with the reason
+for each position. It carries no tasks, no step-by-step, no hour estimates —
+each slice is detailed once the previous one is live.
+
+### The map
 
 | # | Slice | What exists at the end that did not exist before |
 |---|---|---|
@@ -19,7 +118,7 @@ each slice is detailed once the previous one is live.
 | 6 | README and verification walkthrough | whoever gets the link can run, alone, the sequence that ends in 404, and read the project's decisions, non-goals included |
 | 7 | Telegram | a command to the bot returns the sender's own list |
 
-## Why this order
+### Why this order
 
 The criterion: what is most expensive to get wrong here — not what is hardest,
 what costs the most to undo.
@@ -60,7 +159,7 @@ documented.
 open blocker (how the backend confirms which account a conversation belongs
 to), and it is not the project's shop window.
 
-## The rule that makes a slice vertical
+### The rule that makes a slice vertical
 
 Slices 1 through 5 each cross the whole stack, in this order:
 
@@ -83,7 +182,7 @@ The usage-period model is born in slice 3, with the foreign key added in a
 later, trivial migration. The same holds for disease in slice 4 and sharing in
 slice 5. Creating a future slice's model early is the trap to block.
 
-## Full tooling from slice zero
+### Full tooling from slice zero
 
 Complete tooling before the first feature: `uv` for packages and environment,
 `ruff` as linter and formatter, `mypy` for types, `pre-commit` as a pre-commit
