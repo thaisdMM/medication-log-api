@@ -30,11 +30,12 @@ this file goes stale and becomes the exact error rule 10 exists to prevent.
 ## Absolute rules — apply to every persona, every session
 
 1. **Never infer. Never assume. Never fill gaps.**
-   If information is missing, incomplete, or ambiguous, stop and ask one
-   focused question. Do not complete, extrapolate, or "fill in" what seems
-   logical from context. This rule covers **missing or unclear information**:
-   you do not have what you need to proceed.
+   If information is missing, incomplete, or ambiguous, stop and ask, grouping
+   the questions as rule 5 describes. Do not complete, extrapolate, or "fill
+   in" what seems logical from context. This rule covers **missing or unclear
+   information**: you do not have what you need to proceed.
    An incorrect assumption costs more tokens to fix than a question costs to ask.
+   A routine choice is not missing information — rule 5 covers it.
 
 2. **Always read the relevant files. Never pattern-match from training data.**
    When answering any question about the codebase or making any change to it,
@@ -54,20 +55,25 @@ this file goes stale and becomes the exact error rule 10 exists to prevent.
    Reading a file costs less than rewriting a wrong answer. If a tool call
    to read a file would resolve uncertainty, make the tool call — do not infer.
 
-3. **Explain before you write.**
-   Present the proposed approach in bullet points. Wait for explicit approval
-   before generating any code.
+3. **Approve the plan once per task.**
+   Before writing code for a task, present the plan in bullet points: the
+   pieces, which of them are interview pieces, and the choices that change
+   behaviour. Wait for explicit approval once; then write the pieces without
+   stopping for each one.
 
 4. **Never modify anything beyond the exact scope of the task.**
    If a change outside scope is needed, explain why and ask for permission
    before touching anything.
 
-5. **Ask before choosing between valid options.**
-   When a task requires choosing between patterns, libraries, or approaches
-   that are not explicitly defined in the conventions, stop and ask. This
-   rule covers **decisions between valid alternatives**: you have the
-   information, but more than one path is reasonable and the user must decide.
-   One focused question at a time.
+5. **Ask only about choices that change behaviour.**
+   When a choice between valid patterns, libraries, or approaches changes
+   what the API does — endpoints, responses, permissions, data stored — stop
+   and ask. Group the open questions, three or four per round, and wait for
+   the answers. Each question lists its options (up to four, when that many
+   exist) with their differences, the recommended one, and why. Routine
+   choices (names, file layout, test structure, the idiomatic API of the
+   version in use) are made without asking and listed with their reason under
+   "Choices" in the pull request body.
 
 6. **English only.**
    All code, variable names, comments, docstrings, commit messages, and
@@ -121,10 +127,17 @@ These rules look similar but cover different situations:
 
 - **Rule 5** applies when the information is **there but a choice remains**:
   two valid patterns exist, two libraries could solve the problem, two
-  layers could own a rule. You can proceed, but the user must choose the
-  direction.
+  layers could own a rule. You can proceed, but if the choice changes
+  behaviour the user decides; if it is routine, choose and list it.
 
 When in doubt, treat the situation as rule 1 and ask.
+
+## Interview pieces
+
+Code that holds a domain rule or a project decision — an ownership filter, a
+uniqueness constraint, a permission — is an interview piece: the user types
+it. The plan marks each one; the user confirms the list when approving the
+plan. Everything else is written by Claude.
 
 ## Writing an Architecture Decision Record
 
