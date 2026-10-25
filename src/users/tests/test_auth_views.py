@@ -133,3 +133,71 @@ def test_using_a_token_does_not_move_its_expiry(
 
     assert response.status_code == 200
     assert AuthToken.objects.get().expiry == expiry
+
+
+@pytest.mark.django_db
+def test_logout_makes_the_token_used_stop_working(
+    client: Client, account_token: str
+) -> None:
+    """After a logout, the token it was called with is refused."""
+    logout = client.post(
+        reverse("auth-logout"), HTTP_AUTHORIZATION=f"Token {account_token}"
+    )
+
+    response = client.get(
+        reverse("user-me"), HTTP_AUTHORIZATION=f"Token {account_token}"
+    )
+
+    assert logout.status_code == 204
+    assert response.status_code == 401
+
+
+@pytest.mark.django_db
+def test_logout_keeps_the_other_tokens_of_the_account_working(
+    client: Client, account_token: str, second_account_token: str
+) -> None:
+    """A logout ends only the token it was called with."""
+    logout = client.post(
+        reverse("auth-logout"), HTTP_AUTHORIZATION=f"Token {account_token}"
+    )
+
+    response = client.get(
+        reverse("user-me"), HTTP_AUTHORIZATION=f"Token {second_account_token}"
+    )
+
+    assert logout.status_code == 204
+    assert response.status_code == 200
+
+
+@pytest.mark.django_db
+def test_logout_all_makes_every_token_of_the_account_stop_working(
+    client: Client, account_token: str, second_account_token: str
+) -> None:
+    """After a logout-all, no token of the account is accepted."""
+    logout = client.post(
+        reverse("auth-logoutall"), HTTP_AUTHORIZATION=f"Token {account_token}"
+    )
+
+    responses = [
+        client.get(reverse("user-me"), HTTP_AUTHORIZATION=f"Token {token}")
+        for token in (account_token, second_account_token)
+    ]
+
+    assert logout.status_code == 204
+    assert [response.status_code for response in responses] == [401, 401]
+
+
+@pytest.mark.django_db
+def test_logout_all_keeps_the_tokens_of_other_accounts_working(
+    client: Client, account_token: str, other_account: User
+) -> None:
+    """A logout-all ends only the tokens of the account that called it."""
+    _, other_token = AuthToken.objects.create(user=other_account)
+    logout = client.post(
+        reverse("auth-logoutall"), HTTP_AUTHORIZATION=f"Token {account_token}"
+    )
+
+    response = client.get(reverse("user-me"), HTTP_AUTHORIZATION=f"Token {other_token}")
+
+    assert logout.status_code == 204
+    assert response.status_code == 200

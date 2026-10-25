@@ -46,3 +46,10 @@ def account_token(existing_account: User) -> str:
     """A valid token for the existing account, created directly through knox."""
     _, token = AuthToken.objects.create(user=existing_account)
     return str(token)
+
+
+@pytest.fixture
+def second_account_token(existing_account: User) -> str:
+    """Another valid token for the existing account, as from a second login."""
+    _, token = AuthToken.objects.create(user=existing_account)
+    return str(token)
