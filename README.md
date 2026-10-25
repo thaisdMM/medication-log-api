@@ -26,8 +26,8 @@ through CI, before the next one starts.
 
 | | |
 |---|---|
-| **Done** | Tooling and CI, production deploy, custom user model, registration, token login, current user endpoint |
-| **Next** | Logout, interactive API documentation, medication records owned per account |
+| **Done** | Tooling and CI, production deploy, custom user model, registration, token login, current user endpoint, logout |
+| **Next** | Interactive API documentation, medication records owned per account |
 | **Then** | A Telegram bot that answers with the sender's own medication list |
 
 The full plan and the reasons for its order are in the
@@ -54,6 +54,8 @@ The full plan and the reasons for its order are in the
 | `POST` | `/api/users/` | public | Creates an account from email, name and password |
 | `POST` | `/api/auth/login/` | public | Exchanges email and password for a token |
 | `GET` | `/api/users/me/` | token | Returns the account behind the token |
+| `POST` | `/api/auth/logout/` | token | Deletes the token in use |
+| `POST` | `/api/auth/logoutall/` | token | Deletes every token of the account |
 
 ```bash
 BASE=https://medication-log-api.onrender.com
@@ -65,6 +67,8 @@ curl -X POST $BASE/api/auth/login/ -H "Content-Type: application/json" \
   -d '{"email": "ana@example.com", "password": "a-long-passphrase"}'
 
 curl $BASE/api/users/me/ -H "Authorization: Token <token from the login>"
+
+curl -X POST $BASE/api/auth/logout/ -H "Authorization: Token <token from the login>"
 ```
 
 ## Running locally
