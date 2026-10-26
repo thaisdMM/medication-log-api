@@ -1,6 +1,11 @@
 """Views for the user account."""
 
+from http import HTTPStatus
+
+from drf_spectacular.utils import extend_schema, extend_schema_view
 from knox.views import LoginView as KnoxLoginView
+from knox.views import LogoutAllView as KnoxLogoutAllView
+from knox.views import LogoutView as KnoxLogoutView
 from rest_framework import generics
 from rest_framework.permissions import AllowAny
 from rest_framework.request import Request
@@ -9,6 +14,7 @@ from rest_framework.response import Response
 from users.models import User
 from users.serializers import (
     CurrentUserSerializer,
+    LoginResponseSerializer,
     LoginSerializer,
     UserRegistrationSerializer,
 )
@@ -60,6 +66,7 @@ class LoginView(KnoxLoginView):  # type: ignore[misc]
     authentication_classes = ()
     permission_classes = (AllowAny,)
 
+    @extend_schema(request=LoginSerializer, responses=LoginResponseSerializer)
     def post(self, request: Request, format: str | None = None) -> Response:
         """Validate the credentials, then let knox create the token.
 
@@ -78,3 +85,17 @@ class LoginView(KnoxLoginView):  # type: ignore[misc]
         request.user = serializer.validated_data["user"]
         response: Response = super().post(request, format=format)
         return response
+
+
+@extend_schema_view(
+    post=extend_schema(request=None, responses={HTTPStatus.NO_CONTENT: None}),
+)
+class LogoutView(KnoxLogoutView):  # type: ignore[misc]
+    """Delete the token used in the request, so it stops working at once."""
+
+
+@extend_schema_view(
+    post=extend_schema(request=None, responses={HTTPStatus.NO_CONTENT: None}),
+)
+class LogoutAllView(KnoxLogoutAllView):  # type: ignore[misc]
+    """Delete every token of the account, so none of them works any more."""

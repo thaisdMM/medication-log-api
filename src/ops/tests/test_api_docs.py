@@ -16,3 +16,17 @@ def test_schema_opens_without_a_token(client: Client) -> None:
     response = client.get("/api/schema/")
 
     assert response.status_code == 200
+
+
+def test_schema_lists_every_slice_1_endpoint(client: Client) -> None:
+    """The schema describes the account and token endpoints, not only the docs."""
+    response = client.get("/api/schema/?format=json")
+
+    assert response.status_code == 200
+    assert set(response.json()["paths"]) >= {
+        "/api/users/",
+        "/api/users/me/",
+        "/api/auth/login/",
+        "/api/auth/logout/",
+        "/api/auth/logoutall/",
+    }
