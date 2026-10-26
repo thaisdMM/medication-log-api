@@ -11,6 +11,7 @@ dependencies = [
     "django-rest-knox>=5.1.0",
     "django[argon2]>=6.1",
     "djangorestframework>=3.18.3",
+    "drf-spectacular>=0.30.0",
     "environs[django]>=15.1.0",
     "granian>=2.8.2",
     "psycopg[binary]>=3.3.5",
