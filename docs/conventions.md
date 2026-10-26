@@ -123,7 +123,7 @@ Conventional Commits, checked by the `commit-msg` hook.
 ```
 <type>(<scope>): <main change, imperative, lower case, no full stop>
 
-- <short line naming a file touched and what changed in it>
+- <file name>: <what changed in it>
 ```
 
 - **Types:** `feat`, `fix`, `refactor`, `test`, `docs`, `chore`. (`test`, not
@@ -136,9 +136,12 @@ Conventional Commits, checked by the `commit-msg` hook.
   helps the reader.
 - **Granularity:** one commit per change: production code with the tests that
   cover it, a model with its migration.
-- **Body:** short, objective bullets, a few at most. They tell the reader which
-  files the commit touches and what changed in each; they do not describe
-  everything that was done or repeat the pull request.
+- **Body:** only when the subject is not enough. A commit that adds a single
+  document has none: `docs(adr): add ADR on several valid tokens per account`.
+  When there is one: short, objective bullets, a few at most, naming each file
+  by its short name (`README.md`, `conventions.md`, not the full path) and what
+  changed in it; they do not describe everything that was done or repeat the
+  pull request.
 - No task, slice, ADR or record numbers; ADRs by subject.
 - No `Co-Authored-By`, "Generated with" or session trailers.
 - The message is shown and approved before the commit is made.
