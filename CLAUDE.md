@@ -18,6 +18,8 @@ this file goes stale and becomes the exact error rule 10 exists to prevent.
 
 **Read only when the task touches the subject:**
 
+- `docs/conventions.md` — before writing code, a test, a commit message or a
+  pull request body.
 - `GLOSSARY.md` — naming anything in the domain.
 - `docs/domain-model.md` — models, fields, required values.
 - `docs/api-behaviour.md` and `docs/definition-of-done.md` — any endpoint.

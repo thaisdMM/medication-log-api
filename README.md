@@ -105,6 +105,7 @@ reasons, so the code can be read against the decision behind it.
 | Document | Content |
 |---|---|
 | [API behaviour](docs/api-behaviour.md) | Status codes and response conventions |
+| [Conventions](docs/conventions.md) | How code, tests, commits and pull requests are written |
 | [Decision records (ADRs)](docs/adr/) | Why each structural choice was made |
 | [Domain model](docs/domain-model.md) | Entities, ownership and rules |
 | [Glossary](GLOSSARY.md) | The domain terms and what each one means |
