@@ -149,3 +149,18 @@ class LoginSerializer(serializers.Serializer[User]):
         if user is None:
             raise serializers.ValidationError(INVALID_CREDENTIALS_MESSAGE)
         return {**attrs, "user": user}
+
+
+class LoginResponseSerializer(serializers.Serializer[Any]):
+    """Describe the body of a successful login, for the API schema only.
+
+    The body itself is built by knox; this class is never used to validate or
+    produce a response.
+
+    Attributes:
+        token: The token to send in the Authorization header
+        expiry: When the token stops working
+    """
+
+    token = serializers.CharField()
+    expiry = serializers.DateTimeField()
