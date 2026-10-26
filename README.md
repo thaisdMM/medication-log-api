@@ -19,6 +19,9 @@ Docker · GitHub Actions · deployed on Render and Neon.
 **Live:** https://medication-log-api.onrender.com/healthz/ (free tier, so the
 first request after a while can take up to a minute to wake the service)
 
+**Interactive documentation:** https://medication-log-api.onrender.com/api/docs/
+(Swagger UI: "Authorize" takes `Token <token from the login>`)
+
 ## Status
 
 Work in progress, built in vertical slices: each one ships to production,
@@ -26,8 +29,8 @@ through CI, before the next one starts.
 
 | | |
 |---|---|
-| **Done** | Tooling and CI, production deploy, custom user model, registration, token login, current user endpoint, logout |
-| **Next** | Interactive API documentation, medication records owned per account |
+| **Done** | Tooling and CI, production deploy, custom user model, registration, token login, current user endpoint, logout, interactive API documentation |
+| **Next** | Medication records owned per account |
 | **Then** | A Telegram bot that answers with the sender's own medication list |
 
 The full plan and the reasons for its order are in the
@@ -38,6 +41,7 @@ The full plan and the reasons for its order are in the
 | Area | Tools |
 |---|---|
 | Language and framework | Python 3.14, Django 6.1, Django REST Framework |
+| API documentation | drf-spectacular (OpenAPI 3), Swagger UI |
 | Authentication | django-rest-knox (tokens stored hashed, fixed expiry), Argon2 password hashing |
 | Database | PostgreSQL 18 |
 | Server and container | Granian (WSGI), multi-stage non-root Docker image, Docker Compose |
@@ -51,6 +55,8 @@ The full plan and the reasons for its order are in the
 | Method | Path | Access | What it does |
 |---|---|---|---|
 | `GET` | `/healthz/` | public | Reports whether the application reaches its database |
+| `GET` | `/api/docs/` | public | Swagger UI page to read and try the endpoints |
+| `GET` | `/api/schema/` | public | The OpenAPI schema behind that page |
 | `POST` | `/api/users/` | public | Creates an account from email, name and password |
 | `POST` | `/api/auth/login/` | public | Exchanges email and password for a token |
 | `GET` | `/api/users/me/` | token | Returns the account behind the token |
