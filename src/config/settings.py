@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "rest_framework",
+    "drf_spectacular",
     "knox",
     "users.apps.UsersConfig",
     "ops.apps.OpsConfig",
@@ -149,6 +150,7 @@ REST_FRAMEWORK = {
     "DEFAULT_RENDERER_CLASSES": [
         "rest_framework.renderers.JSONRenderer",
     ],
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
 }
 
 
@@ -157,4 +159,22 @@ REST_FRAMEWORK = {
 REST_KNOX = {
     "TOKEN_TTL": timedelta(hours=10),
     "USER_SERIALIZER": None,
+}
+
+
+# drf-spectacular
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "Medication Log API",
+    "DESCRIPTION": (
+        "REST API for a personal medication and health condition log, "
+        "with read-only sharing between accounts."
+    ),
+    "VERSION": "0.1.0",
+    "SERVE_INCLUDE_SCHEMA": False,
+    "SERVE_PERMISSIONS": ["rest_framework.permissions.AllowAny"],
+    "SWAGGER_UI_DIST": "https://cdn.jsdelivr.net/npm/swagger-ui-dist@5.34.0",
+    "SWAGGER_UI_FAVICON_HREF": (
+        "https://cdn.jsdelivr.net/npm/swagger-ui-dist@5.34.0/favicon-32x32.png"
+    ),
 }
