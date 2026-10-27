@@ -59,9 +59,8 @@ this file goes stale and becomes the exact error rule 10 exists to prevent.
 
 3. **Approve the plan once per task.**
    Before writing code for a task, present the plan in bullet points: the
-   pieces, which of them are interview pieces, and the choices that change
-   behaviour. Wait for explicit approval once; then write the pieces without
-   stopping for each one.
+   pieces and the choices that change behaviour. Wait for explicit approval
+   once; then write the pieces without stopping for each one.
 
 4. **Never modify anything beyond the exact scope of the task.**
    If a change outside scope is needed, explain why and ask for permission
@@ -133,13 +132,6 @@ These rules look similar but cover different situations:
   behaviour the user decides; if it is routine, choose and list it.
 
 When in doubt, treat the situation as rule 1 and ask.
-
-## Interview pieces
-
-Code that holds a domain rule or a project decision — an ownership filter, a
-uniqueness constraint, a permission — is an interview piece: the user types
-it. The plan marks each one; the user confirms the list when approving the
-plan. Everything else is written by Claude.
 
 ## Writing an Architecture Decision Record
 
