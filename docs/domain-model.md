@@ -51,7 +51,7 @@ owner column).
 | Field | Rule |
 |---|---|
 | owner | the account; set by the system |
-| name | free text, mandatory, no minimum length, stored exactly as typed |
+| name | free text, mandatory, no minimum length, stored as typed, without leading and trailing spaces; casing never changed |
 | concentration value | a decimal greater than zero, three decimal places, optional |
 | concentration unit | closed list, optional |
 | form | closed list, optional |
