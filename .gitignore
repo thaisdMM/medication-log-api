@@ -21,3 +21,6 @@ db.sqlite3
 # Local, uncommitted instructions
 CLAUDE.local.md
 .claude/skills/django-mentor/task-format.md
+
+# Agent worktrees
+.claude/worktrees/
