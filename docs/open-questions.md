@@ -4,30 +4,6 @@ What is not decided yet, which slice it blocks, and what is already known.
 Ordered by the slice that needs the answer. A closed question moves to the
 document that holds its answer.
 
-## Slice 2 — Does `nulls_distinct=False` act? (the experiment)
-
-Blocks: the medication model. First task of slice 2.
-
-ADR 0008 rests on documentation read, never on code run. Run against the
-project's PostgreSQL and Django, with the duplicate constraint declared:
-
-| # | Prove | What the answer decides |
-|---|---|---|
-| 1 | Two rows equal except that both have no concentration value — does the database refuse the second? | Whether `nulls_distinct` acts. If not, ADR 0008's first fallback applies: form gets a default value, which becomes a tenth item of the form list |
-| 2 | Is the refusal raised in Python validation (`full_clean`, serializer), or only as an `IntegrityError` from the database? | Whether the API answers 400 or 500 |
-| 3 | Does a closed-list field left unchosen store `''` or `NULL`? | Confirms the empty-text rule of `docs/domain-model.md` |
-
-It also settles whether a case-insensitive name expression that yields `NULL`
-is treated as distinct in Python validation while the database refuses it. The
-name is mandatory, so the expression should never yield `NULL`.
-
-Until it runs, the form list and the empty-text rule are a working hypothesis.
-
-## Slice 2 — Which concentration units beyond mg, g, ml?
-
-Blocks: the unit list. Decided so far: mg, g, ml, other. Candidates: mcg,
-international unit, mg/ml.
-
 ## Slice 3 — Which values does frequency accept?
 
 Blocks: the frequency field. Decided so far: it is structured — a count and a

@@ -52,7 +52,7 @@ owner column).
 |---|---|
 | owner | the account; set by the system |
 | name | free text, mandatory, no minimum length, stored exactly as typed |
-| concentration value | a free number, optional |
+| concentration value | a decimal greater than zero, three decimal places, optional |
 | concentration unit | closed list, optional |
 | form | closed list, optional |
 | state | in use / suspended |
@@ -71,15 +71,12 @@ owner column).
   Suspending, rather than deleting, keeps its usage periods; resuming is a new
   usage period.
 - **Form list:** tablet · capsule · drop · ml · sachet · patch · suppository ·
-  ointment · other. Nine values. **Working hypothesis** until the experiment in
-  `docs/open-questions.md` runs.
+  ointment · other. Nine values.
 - **Form has no default value.** Left unchosen, it stays empty.
-- **Concentration unit list:** mg · g · ml · other. Whether more units enter is
-  open (`docs/open-questions.md`).
+- **Concentration unit list:** mg · g · ml · other.
 - **A closed-list field stores empty text, never `NULL`.** Empty text equals
   empty text in the database, so form and unit never break the duplicate rule.
-  `null=True` on either brings the hole back. Same working-hypothesis status as
-  the form list.
+  `null=True` on either brings the hole back.
 - **"Other" never carries free text**, in any closed list of the project. It is
   a label to mark. Accounts never add values to any list.
 
