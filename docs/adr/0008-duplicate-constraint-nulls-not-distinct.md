@@ -37,10 +37,10 @@ spelling. Declaring the constraint over an expression makes Django create a
 unique index instead of a table constraint, and `deferrable` cannot be used
 with it.
 
-**Verified in documentation on 2026-08-24, never executed.** PostgreSQL's
-`NULLS NOT DISTINCT` changes the default; Django exposes it as
-`UniqueConstraint.nulls_distinct`, ignored on databases other than PostgreSQL.
-The experiment that turns this into fact is in `docs/open-questions.md`.
+**Executed: the option acts.** PostgreSQL's `NULLS NOT DISTINCT` changes the
+default; Django exposes it as `UniqueConstraint.nulls_distinct`, ignored on
+databases other than PostgreSQL. The experiment and its result are in
+`docs/task-slices/0027-nulls-distinct-experiment.md`.
 
 ### Consequences
 
