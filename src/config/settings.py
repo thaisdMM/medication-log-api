@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "drf_spectacular",
     "knox",
+    "medications.apps.MedicationsConfig",
     "users.apps.UsersConfig",
     "ops.apps.OpsConfig",
 ]
