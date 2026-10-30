@@ -4,6 +4,12 @@ What must be verified before a task or slice is done, on top of the slice rule
 in `docs/task-slices/0001-roadmap.md` (no slice ends before its endpoint
 responds in production).
 
+## Every merged change to the application
+
+- [ ] The deploy log shows the service live, and every new migration applied.
+- [ ] `curl` from outside: `/healthz/` answers `200`, and each new endpoint
+      answers as documented.
+
 ## Every endpoint that serves an account's data
 
 - [ ] A test for each row of the response table in `docs/api-behaviour.md` that

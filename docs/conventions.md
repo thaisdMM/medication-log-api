@@ -142,8 +142,9 @@ Conventional Commits, checked by the `commit-msg` hook.
   by its short name (`README.md`, `conventions.md`, not the full path) and what
   changed in it; they do not describe everything that was done or repeat the
   pull request.
-- No task, slice, ADR or record numbers; ADRs by subject.
+- ADRs by subject.
 - No `Co-Authored-By`, "Generated with" or session trailers.
+- The change is reviewed before the commit is made.
 - The message is shown and approved before the commit is made.
 
 ## Pull requests
@@ -152,8 +153,17 @@ Conventional Commits, checked by the `commit-msg` hook.
   not counted).
 - Body sections: **Summary**, **Tests**, **Choices**.
   - Summary: what the API does differently.
-  - Tests: one line per test, the behaviour it proves.
+  - Tests: one plain sentence per test, the behaviour it proves, without the
+    test name.
   - Choices: each routine choice with its reason, then "Not documented: ..." and
     "Not tested, as library behaviour: ..." lines when they apply.
 - Technical only, and approved before it is posted.
-- Documentation-only changes go straight to `main`, without a pull request.
+- A change that touches code starts on a branch. Documentation-only changes go
+  straight to `main`, without a branch or a pull request.
+- After the merge, the branch is deleted on GitHub and locally.
+
+## What commits, pull requests and records say
+
+- What changed and the outcome: merged, CI passing, deployed.
+- No commit hashes, line counts, or task names and numbers. The numbered title
+  and file name of task records stay as they are.
