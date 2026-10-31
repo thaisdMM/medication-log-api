@@ -25,10 +25,10 @@ class UserManager(BaseUserManager["User"]):
         case it is typed in.
 
         Args:
-            email: Email address as typed
+            email: Email address as typed.
 
         Returns:
-            str: The whole email address in lowercase
+            str: The whole email address in lowercase.
         """
         return cls.normalize_email(email).lower()
 
@@ -43,15 +43,15 @@ class UserManager(BaseUserManager["User"]):
         The email is stored in its canonical form (see canonical_email).
 
         Args:
-            email: User's email address (will be the login identifier)
-            name: User's name
-            password: Plain text password
+            email: User's email address (will be the login identifier).
+            name: User's name.
+            password: Plain text password.
 
         Returns:
-            User: The created user instance
+            User: The created user instance.
 
         Raises:
-            ValueError: when email, name or password are not provided
+            ValueError: When email, name or password are not provided.
         """
         if not email:
             raise ValueError("Email must be provided to create an account.")
@@ -71,15 +71,15 @@ class UserManager(BaseUserManager["User"]):
         """Create and save a superuser (admin with all permissions).
 
         Args:
-            email: User's email address (will be the login identifier)
-            name: User's name
-            password: Plain text password
+            email: User's email address (will be the login identifier).
+            name: User's name.
+            password: Plain text password.
 
         Returns:
-            User: The created user instance
+            User: The created user instance.
 
         Raises:
-            ValueError: when email, name or password are not provided
+            ValueError: When email, name or password are not provided.
         """
         user = self.create_user(email=email, name=name, password=password)
         user.is_staff = True
@@ -92,10 +92,10 @@ class User(AbstractBaseUser, PermissionsMixin):
     """Model representing the system User.
 
     Attributes:
-        email: Unique email address used for authentication
-        name: User's name
-        is_active: User's activation status
-        is_staff: Permission to access Django admin
+        email: Unique email address used for authentication.
+        name: User's name.
+        is_active: User's activation status.
+        is_staff: Permission to access Django admin.
     """
 
     email = models.EmailField(
@@ -125,6 +125,6 @@ class User(AbstractBaseUser, PermissionsMixin):
         """String representation of the user.
 
         Returns:
-            str: string representation with class name and database ID.
+            str: String representation with class name and database ID.
         """
         return f"{self.__class__.__name__} (id={self.id})"

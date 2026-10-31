@@ -25,8 +25,8 @@ class UserRegistrationView(generics.CreateAPIView[User]):
 
     Attributes:
         authentication_classes: Empty, so a stale or invalid token sent along
-            with a sign-up does not turn it into a 401
-        permission_classes: Public, overriding the project's closed default
+            with a sign-up does not turn it into a 401.
+        permission_classes: Public, overriding the project's closed default.
     """
 
     serializer_class = UserRegistrationSerializer
@@ -43,7 +43,7 @@ class CurrentUserView(generics.RetrieveAPIView[User]):
         """Return the authenticated account instead of looking one up by URL.
 
         Returns:
-            User: The account the token belongs to
+            User: The account the token belongs to.
         """
         user = self.request.user
         assert isinstance(user, User)
@@ -59,8 +59,8 @@ class LoginView(KnoxLoginView):  # type: ignore[misc]
 
     Attributes:
         authentication_classes: Empty, so a stale or invalid token sent along
-            with a login does not turn it into a 401
-        permission_classes: Public, overriding the project's closed default
+            with a login does not turn it into a 401.
+        permission_classes: Public, overriding the project's closed default.
     """
 
     authentication_classes = ()
@@ -71,14 +71,14 @@ class LoginView(KnoxLoginView):  # type: ignore[misc]
         """Validate the credentials, then let knox create the token.
 
         Args:
-            request: The incoming API request, with email and password
-            format: Format suffix from the URL, if any
+            request: The incoming API request, with email and password.
+            format: Format suffix from the URL, if any.
 
         Returns:
-            Response: 200 with the token and its expiry
+            Response: 200 with the token and its expiry.
 
         Raises:
-            ValidationError: when the credentials do not match an active account
+            ValidationError: When the credentials do not match an active account.
         """
         serializer = LoginSerializer(data=request.data, context={"request": request})
         serializer.is_valid(raise_exception=True)

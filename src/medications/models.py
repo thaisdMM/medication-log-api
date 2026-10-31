@@ -46,12 +46,12 @@ class Medication(models.Model):
     """A medication an account records: a name, a concentration and a form.
 
     Attributes:
-        owner: The account the medication belongs to
-        name: Medication name, as typed
-        concentration_value: Amount of active substance, when informed
-        concentration_unit: Unit of the concentration, empty when not chosen
-        form: How the medication is presented, empty when not chosen
-        state: Whether the account takes the medication or suspended it
+        owner: The account the medication belongs to.
+        name: Medication name, as typed.
+        concentration_value: Amount of active substance, when informed.
+        concentration_unit: Unit of the concentration, empty when not chosen.
+        form: How the medication is presented, empty when not chosen.
+        state: Whether the account takes the medication or suspended it.
     """
 
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
@@ -85,6 +85,6 @@ class Medication(models.Model):
         """String representation of the medication.
 
         Returns:
-            str: string representation with class name and database ID.
+            str: String representation with class name and database ID.
         """
         return f"{self.__class__.__name__} (id={self.id})"

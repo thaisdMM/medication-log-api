@@ -12,7 +12,7 @@ class BrokenConnection:
         """Raise what a refused connection raises.
 
         Raises:
-            OperationalError: always.
+            OperationalError: Always.
         """
         raise OperationalError("connection refused")
 
