@@ -21,9 +21,9 @@ class UserRegistrationSerializer(serializers.ModelSerializer[User]):
 
     Attributes:
         email: Login identifier, stored in lowercase and checked for
-            uniqueness in that form
-        name: Account holder's name, accepted on input and never returned
-        password: Plain text password, accepted on input and never returned
+            uniqueness in that form.
+        name: Account holder's name, accepted on input and never returned.
+        password: Plain text password, accepted on input and never returned.
     """
 
     email = serializers.EmailField(max_length=255, write_only=True)
@@ -38,13 +38,13 @@ class UserRegistrationSerializer(serializers.ModelSerializer[User]):
         """Lowercase the email and refuse an address already in use.
 
         Args:
-            value: Email address as sent, already trimmed and format-checked
+            value: Email address as sent, already trimmed and format-checked.
 
         Returns:
-            str: The whole email address in lowercase, as the manager stores it
+            str: The whole email address in lowercase, as the manager stores it.
 
         Raises:
-            ValidationError: when an account with this email address exists
+            ValidationError: When an account with this email address exists.
         """
         email = User.objects.canonical_email(value)
         if User.objects.filter(email=email).exists():
@@ -55,13 +55,13 @@ class UserRegistrationSerializer(serializers.ModelSerializer[User]):
         """Run the project's password validators against the new account.
 
         Args:
-            attrs: Field values that passed field-level validation
+            attrs: Field values that passed field-level validation.
 
         Returns:
-            dict[str, Any]: The same field values, unchanged
+            dict[str, Any]: The same field values, unchanged.
 
         Raises:
-            ValidationError: when a password validator rejects the password
+            ValidationError: When a password validator rejects the password.
         """
         user = User(email=attrs["email"], name=attrs["name"])
         try:
@@ -80,13 +80,13 @@ class UserRegistrationSerializer(serializers.ModelSerializer[User]):
         and reported as the same duplicate email error.
 
         Args:
-            validated_data: Email, name and password that passed validation
+            validated_data: Email, name and password that passed validation.
 
         Returns:
-            User: The created user instance
+            User: The created user instance.
 
         Raises:
-            ValidationError: when the email was taken after validation
+            ValidationError: When the email was taken after validation.
         """
         try:
             with transaction.atomic():
@@ -105,8 +105,8 @@ class CurrentUserSerializer(serializers.ModelSerializer[User]):
     """Represent the account behind the token.
 
     Attributes:
-        id: Account identifier
-        name: Account holder's name
+        id: Account identifier.
+        name: Account holder's name.
     """
 
     class Meta:
@@ -119,8 +119,8 @@ class LoginSerializer(serializers.Serializer[User]):
     """Check an email and password pair and resolve the account behind it.
 
     Attributes:
-        email: Login identifier, compared in its canonical form
-        password: Plain text password, accepted on input and never returned
+        email: Login identifier, compared in its canonical form.
+        password: Plain text password, accepted on input and never returned.
     """
 
     email = serializers.EmailField(max_length=255)
@@ -133,13 +133,13 @@ class LoginSerializer(serializers.Serializer[User]):
         same message, so a login attempt cannot tell which accounts exist.
 
         Args:
-            attrs: Email and password that passed field-level validation
+            attrs: Email and password that passed field-level validation.
 
         Returns:
-            dict[str, Any]: The same field values, plus the account as "user"
+            dict[str, Any]: The same field values, plus the account as "user".
 
         Raises:
-            ValidationError: when the credentials do not match an active account
+            ValidationError: When the credentials do not match an active account.
         """
         user = authenticate(
             self.context.get("request"),
@@ -158,8 +158,8 @@ class LoginResponseSerializer(serializers.Serializer[Any]):
     produce a response.
 
     Attributes:
-        token: The token to send in the Authorization header
-        expiry: When the token stops working
+        token: The token to send in the Authorization header.
+        expiry: When the token stops working.
     """
 
     token = serializers.CharField()
