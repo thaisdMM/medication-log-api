@@ -33,6 +33,8 @@ code. Tests follow the rule under Tests.
 - A docstring states **what** the code does: its behaviour, its inputs and
   outputs. Sections: `Args`, `Returns`, `Attributes`, `Raises`, only those that
   apply.
+- Each entry under a section starts with a capital letter and ends with a full
+  stop: `ImproperlyConfigured: When the view declares no owner path.`
 - It does not justify a design decision, argue against an alternative, explain
   framework internals or refer to an ADR. That reasoning belongs in
   `docs/adr/` or the task record.
