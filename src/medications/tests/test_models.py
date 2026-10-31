@@ -15,26 +15,6 @@ from medications.models import (
 from users.models import User
 
 
-@pytest.fixture
-def owner() -> User:
-    """The account that records the medications."""
-    return User.objects.create_user(
-        email="ana.ribeiro@example.com",
-        name="Ana Ribeiro",
-        password="Blue-Kettle-42",
-    )
-
-
-@pytest.fixture
-def other_account() -> User:
-    """A second account, unrelated to the owner."""
-    return User.objects.create_user(
-        email="bruno.costa@example.com",
-        name="Bruno Costa",
-        password="Green-Lantern-17",
-    )
-
-
 @pytest.mark.django_db
 def test_same_medication_with_only_a_name_is_refused(owner: User) -> None:
     """A second row blank except for the same name raises IntegrityError."""
