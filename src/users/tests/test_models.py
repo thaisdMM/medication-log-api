@@ -8,12 +8,6 @@ from django.db import IntegrityError, transaction
 from users.models import User
 
 
-@pytest.fixture
-def valid_user_data() -> dict[str, str]:
-    """Valid data to create a generic user."""
-    return {"email": "testuser@email.com", "name": "User Name", "password": "Strong#01"}
-
-
 def test_user_is_the_model_django_authenticates_with() -> None:
     """Django resolves the custom User as the authentication model."""
     assert get_user_model() is User

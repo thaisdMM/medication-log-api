@@ -97,8 +97,8 @@ code. Tests follow the rule under Tests.
 
 ### Fixtures
 
-- Shared fixtures live in `<app>/tests/conftest.py`, in dependency order. A
-  fixture used by one test file stays in that file.
+- A test folder with a `conftest.py` keeps all its fixtures there, in dependency
+  order. Without a `conftest.py`, a fixture stays in the test file that uses it.
 - Data fixtures return a `dict` of valid input; tests override one field with
   `{**data, "field": value}`.
 - Every fixture and test is annotated, built-in fixtures included
