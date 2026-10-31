@@ -27,17 +27,14 @@ def test_same_medication_with_only_a_name_is_refused(owner: User) -> None:
 
 
 @pytest.mark.django_db
-def test_name_differing_only_in_case_is_refused(owner: User) -> None:
+def test_name_differing_only_in_case_is_refused(
+    owner: User, medication_data: dict[str, str], existing_medication: Medication
+) -> None:
     """The same combination with the name in another case raises IntegrityError."""
-    details = {
-        "concentration_value": "500",
-        "concentration_unit": "mg",
-        "form": "tablet",
-    }
-    Medication.objects.create(owner=owner, name="Dipirona", **details)
-
     with pytest.raises(IntegrityError), transaction.atomic():
-        Medication.objects.create(owner=owner, name="dipirona", **details)
+        Medication.objects.create(
+            owner=owner, **{**medication_data, "name": "dipirona"}
+        )
 
     assert Medication.objects.count() == 1
 
@@ -54,25 +51,23 @@ def test_two_accounts_can_record_the_same_medication(
 
 
 @pytest.mark.parametrize(
-    "difference",
+    ("field", "value"),
     [
-        pytest.param({"concentration_value": "250"}, id="concentration_value"),
-        pytest.param({"concentration_unit": "g"}, id="concentration_unit"),
-        pytest.param({"form": "capsule"}, id="form"),
+        pytest.param("concentration_value", "250", id="concentration_value"),
+        pytest.param("concentration_unit", "g", id="concentration_unit"),
+        pytest.param("form", "capsule", id="form"),
     ],
 )
 @pytest.mark.django_db
 def test_same_name_with_one_different_detail_is_another_medication(
-    owner: User, difference: dict[str, str]
+    owner: User,
+    medication_data: dict[str, str],
+    existing_medication: Medication,
+    field: str,
+    value: str,
 ) -> None:
     """A row that differs in one column of the combination is saved."""
-    details = {
-        "concentration_value": "500",
-        "concentration_unit": "mg",
-        "form": "tablet",
-    }
-    Medication.objects.create(owner=owner, name="Dipirona", **details)
-    Medication.objects.create(owner=owner, name="Dipirona", **details | difference)
+    Medication.objects.create(owner=owner, **{**medication_data, field: value})
 
     assert Medication.objects.count() == 2
 

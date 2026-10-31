@@ -7,6 +7,12 @@ from users.models import User
 
 
 @pytest.fixture
+def valid_user_data() -> dict[str, str]:
+    """Valid data to create a generic user."""
+    return {"email": "testuser@email.com", "name": "User Name", "password": "Strong#01"}
+
+
+@pytest.fixture
 def registration_data() -> dict[str, str]:
     """Valid sign-up data that every password validator accepts."""
     return {
