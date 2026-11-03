@@ -45,3 +45,17 @@ class MedicationListCreateView(
         if state is None:
             return queryset
         return queryset.filter(state=state)
+
+
+class MedicationDetailView(
+    OwnerFilterMixin, generics.RetrieveUpdateDestroyAPIView[Medication]
+):
+    """Retrieve, update and delete a medication of the requesting account.
+
+    Attributes:
+        owner_path: Lookup path from the medication to the owning account.
+    """
+
+    queryset = Medication.objects.all()
+    serializer_class = MedicationSerializer
+    owner_path = "owner"

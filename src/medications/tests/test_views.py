@@ -1,4 +1,6 @@
-"""Tests for the medication list and create endpoint."""
+"""Tests for the medication endpoints."""
+
+from decimal import Decimal
 
 import pytest
 from django.test import Client
@@ -214,3 +216,225 @@ def test_creating_a_duplicate_answers_a_validation_error_with_the_fixed_message(
     assert response.status_code == 400
     assert response.json() == {"non_field_errors": [DUPLICATE_MEDICATION_MESSAGE]}
     assert Medication.objects.count() == 1
+
+
+@pytest.mark.parametrize("method", ["get", "put", "patch", "delete"])
+@pytest.mark.django_db
+def test_detail_request_without_a_token_is_refused(
+    client: Client, existing_medication: Medication, method: str
+) -> None:
+    """A detail request with no token is not authenticated and changes nothing."""
+    response = getattr(client, method)(
+        reverse("medication-detail", args=[existing_medication.id]),
+        {"name": "Losartana", "state": "suspended"},
+        content_type="application/json",
+    )
+
+    assert response.status_code == 401
+    assert Medication.objects.filter(
+        id=existing_medication.id, name="Dipirona", state="in_use"
+    ).exists()
+
+
+@pytest.mark.django_db
+def test_retrieving_answers_with_the_medication_without_the_owner(
+    client: Client, owner_token: str, existing_medication: Medication
+) -> None:
+    """A medication of the account is returned with its fields and no owner."""
+    response = client.get(
+        reverse("medication-detail", args=[existing_medication.id]),
+        HTTP_AUTHORIZATION=f"Token {owner_token}",
+    )
+
+    assert response.status_code == 200
+    assert response.json() == {
+        "id": existing_medication.id,
+        "name": "Dipirona",
+        "concentration_value": "500",
+        "concentration_unit": "mg",
+        "form": "tablet",
+        "state": "in_use",
+    }
+
+
+@pytest.mark.parametrize("method", ["get", "put", "patch", "delete"])
+@pytest.mark.django_db
+def test_medication_of_another_account_is_not_found(
+    client: Client, other_account: User, owner_token: str, method: str
+) -> None:
+    """Another account's medication answers as missing and is left unchanged."""
+    medication = Medication.objects.create(owner=other_account, name="Losartana")
+
+    response = getattr(client, method)(
+        reverse("medication-detail", args=[medication.id]),
+        {"name": "Dipirona", "state": "suspended"},
+        content_type="application/json",
+        HTTP_AUTHORIZATION=f"Token {owner_token}",
+    )
+
+    assert response.status_code == 404
+    assert Medication.objects.filter(
+        id=medication.id, name="Losartana", state="in_use"
+    ).exists()
+
+
+@pytest.mark.parametrize(
+    ("stored", "sent"),
+    [
+        pytest.param("in_use", "suspended", id="suspend"),
+        pytest.param("suspended", "in_use", id="resume"),
+    ],
+)
+@pytest.mark.django_db
+def test_patching_the_state_changes_it(
+    client: Client,
+    owner: User,
+    owner_token: str,
+    medication_data: dict[str, str],
+    stored: str,
+    sent: str,
+) -> None:
+    """A partial edit of the state alone saves the new state."""
+    medication = Medication.objects.create(
+        owner=owner, **{**medication_data, "state": stored}
+    )
+
+    response = client.patch(
+        reverse("medication-detail", args=[medication.id]),
+        {"state": sent},
+        content_type="application/json",
+        HTTP_AUTHORIZATION=f"Token {owner_token}",
+    )
+
+    assert response.status_code == 200
+    assert response.json()["state"] == sent
+    medication.refresh_from_db()
+    assert medication.state == sent
+
+
+@pytest.mark.django_db
+def test_patching_into_a_duplicate_answers_a_validation_error_with_the_fixed_message(
+    client: Client,
+    owner: User,
+    owner_token: str,
+    existing_medication: Medication,
+    medication_data: dict[str, str],
+) -> None:
+    """An edit into a medication the account already holds is refused unsaved."""
+    medication = Medication.objects.create(
+        owner=owner, **{**medication_data, "form": "capsule"}
+    )
+
+    response = client.patch(
+        reverse("medication-detail", args=[medication.id]),
+        {"form": "tablet"},
+        content_type="application/json",
+        HTTP_AUTHORIZATION=f"Token {owner_token}",
+    )
+
+    assert response.status_code == 400
+    assert response.json() == {"non_field_errors": [DUPLICATE_MEDICATION_MESSAGE]}
+    medication.refresh_from_db()
+    assert medication.form == "capsule"
+
+
+@pytest.mark.django_db
+def test_putting_into_a_duplicate_answers_a_validation_error_with_the_fixed_message(
+    client: Client,
+    owner: User,
+    owner_token: str,
+    existing_medication: Medication,
+    medication_data: dict[str, str],
+) -> None:
+    """A full edit into a medication the account already holds is refused unsaved."""
+    medication = Medication.objects.create(
+        owner=owner, **{**medication_data, "form": "capsule"}
+    )
+
+    response = client.put(
+        reverse("medication-detail", args=[medication.id]),
+        medication_data,
+        content_type="application/json",
+        HTTP_AUTHORIZATION=f"Token {owner_token}",
+    )
+
+    assert response.status_code == 400
+    assert response.json() == {"non_field_errors": [DUPLICATE_MEDICATION_MESSAGE]}
+    medication.refresh_from_db()
+    assert medication.form == "capsule"
+
+
+@pytest.mark.django_db
+def test_putting_replaces_the_fields_sent(
+    client: Client, owner_token: str, existing_medication: Medication
+) -> None:
+    """A full edit saves every field sent."""
+    response = client.put(
+        reverse("medication-detail", args=[existing_medication.id]),
+        {
+            "name": "Losartana",
+            "concentration_value": "0.025",
+            "concentration_unit": "g",
+            "form": "capsule",
+            "state": "suspended",
+        },
+        content_type="application/json",
+        HTTP_AUTHORIZATION=f"Token {owner_token}",
+    )
+
+    assert response.status_code == 200
+    assert response.json() == {
+        "id": existing_medication.id,
+        "name": "Losartana",
+        "concentration_value": "0.025",
+        "concentration_unit": "g",
+        "form": "capsule",
+        "state": "suspended",
+    }
+    existing_medication.refresh_from_db()
+    assert existing_medication.name == "Losartana"
+    assert existing_medication.concentration_value == Decimal("0.025")
+    assert existing_medication.concentration_unit == "g"
+    assert existing_medication.form == "capsule"
+    assert existing_medication.state == "suspended"
+
+
+@pytest.mark.django_db
+def test_putting_without_the_optional_fields_keeps_them(
+    client: Client, owner: User, owner_token: str, medication_data: dict[str, str]
+) -> None:
+    """A full edit with only the name keeps the stored optional fields."""
+    medication = Medication.objects.create(
+        owner=owner, **{**medication_data, "state": "suspended"}
+    )
+
+    response = client.put(
+        reverse("medication-detail", args=[medication.id]),
+        {"name": "Losartana"},
+        content_type="application/json",
+        HTTP_AUTHORIZATION=f"Token {owner_token}",
+    )
+
+    assert response.status_code == 200
+    assert response.json() == {
+        "id": medication.id,
+        "name": "Losartana",
+        "concentration_value": "500",
+        "concentration_unit": "mg",
+        "form": "tablet",
+        "state": "suspended",
+    }
+
+
+@pytest.mark.django_db
+def test_deleting_removes_the_medication(
+    client: Client, owner_token: str, existing_medication: Medication
+) -> None:
+    """A deleted medication answers with no content and leaves the database."""
+    response = client.delete(
+        reverse("medication-detail", args=[existing_medication.id]),
+        HTTP_AUTHORIZATION=f"Token {owner_token}",
+    )
+
+    assert response.status_code == 204
+    assert not Medication.objects.filter(id=existing_medication.id).exists()
