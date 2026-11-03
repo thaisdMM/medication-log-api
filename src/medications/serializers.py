@@ -8,7 +8,11 @@ from django.core.exceptions import ValidationError as DjangoValidationError
 from django.db import IntegrityError, transaction
 from rest_framework import serializers
 
-from medications.models import DUPLICATE_MEDICATION_MESSAGE, Medication
+from medications.models import (
+    DUPLICATE_MEDICATION_MESSAGE,
+    Medication,
+    MedicationState,
+)
 
 
 class MedicationSerializer(serializers.ModelSerializer[Medication]):
@@ -107,3 +111,13 @@ class MedicationSerializer(serializers.ModelSerializer[Medication]):
         return serializers.ValidationError(
             {"non_field_errors": [DUPLICATE_MEDICATION_MESSAGE]}
         )
+
+
+class MedicationListFilterSerializer(serializers.Serializer[dict[str, str]]):
+    """Validate the filters of the medication list.
+
+    Attributes:
+        state: The only state to list, optional and from the closed list.
+    """
+
+    state = serializers.ChoiceField(choices=MedicationState.choices, required=False)

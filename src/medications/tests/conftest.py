@@ -4,6 +4,7 @@ from types import SimpleNamespace
 from typing import Any
 
 import pytest
+from knox.models import AuthToken
 
 from medications.models import Medication
 from users.models import User
@@ -27,6 +28,13 @@ def other_account() -> User:
         name="Bruno Costa",
         password="Green-Lantern-17",
     )
+
+
+@pytest.fixture
+def owner_token(owner: User) -> str:
+    """A valid token of the owner, created directly through knox."""
+    _, token = AuthToken.objects.create(user=owner)
+    return str(token)
 
 
 @pytest.fixture
