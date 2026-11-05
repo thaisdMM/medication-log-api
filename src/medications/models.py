@@ -54,7 +54,7 @@ class Medication(models.Model):
         state: Whether the account takes the medication or suspended it.
     """
 
-    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     name = models.CharField(max_length=255)
     concentration_value = models.DecimalField(
         max_digits=10, decimal_places=3, null=True, blank=True

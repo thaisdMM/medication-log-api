@@ -5,7 +5,9 @@ from django.test import Client
 from django.urls import reverse
 from knox.models import AuthToken
 
+from medications.models import Medication
 from users.models import User
+from users.serializers import WRONG_PASSWORD_MESSAGE
 
 
 @pytest.mark.django_db
@@ -76,3 +78,150 @@ def test_current_user_returns_the_account_behind_the_token(
     ]
 
     assert ids == [existing_account.pk, other_account.pk]
+
+
+@pytest.mark.django_db
+def test_account_deletion_with_the_right_password_removes_the_account(
+    client: Client,
+    existing_account: User,
+    account_token: str,
+    deletion_data: dict[str, str],
+) -> None:
+    """The right password answers with no body and the account leaves the database."""
+    response = client.post(
+        reverse("user-delete"),
+        deletion_data,
+        content_type="application/json",
+        HTTP_AUTHORIZATION=f"Token {account_token}",
+    )
+
+    assert response.status_code == 204
+    assert response.content == b""
+    assert not User.objects.filter(pk=existing_account.pk).exists()
+
+
+@pytest.mark.django_db
+def test_account_deletion_removes_only_the_medications_of_the_account(
+    client: Client,
+    existing_account: User,
+    other_account: User,
+    account_token: str,
+    deletion_data: dict[str, str],
+) -> None:
+    """The account's medications are deleted and another account's are kept."""
+    Medication.objects.create(owner=existing_account, name="Dipirona")
+    kept = Medication.objects.create(owner=other_account, name="Dipirona")
+
+    response = client.post(
+        reverse("user-delete"),
+        deletion_data,
+        content_type="application/json",
+        HTTP_AUTHORIZATION=f"Token {account_token}",
+    )
+
+    assert response.status_code == 204
+    assert list(Medication.objects.values_list("id", flat=True)) == [kept.id]
+
+
+@pytest.mark.django_db
+def test_account_deletion_makes_the_token_used_stop_working(
+    client: Client,
+    existing_account: User,
+    account_token: str,
+    deletion_data: dict[str, str],
+) -> None:
+    """After the deletion, the token that asked for it is refused."""
+    response = client.post(
+        reverse("user-delete"),
+        deletion_data,
+        content_type="application/json",
+        HTTP_AUTHORIZATION=f"Token {account_token}",
+    )
+    assert response.status_code == 204
+
+    response = client.get(
+        reverse("user-me"), HTTP_AUTHORIZATION=f"Token {account_token}"
+    )
+
+    assert response.status_code == 401
+
+
+@pytest.mark.django_db
+def test_account_deletion_frees_the_email_for_a_new_sign_up(
+    client: Client,
+    existing_account: User,
+    account_token: str,
+    deletion_data: dict[str, str],
+    registration_data: dict[str, str],
+) -> None:
+    """The email of a deleted account can be used to sign up again."""
+    response = client.post(
+        reverse("user-delete"),
+        deletion_data,
+        content_type="application/json",
+        HTTP_AUTHORIZATION=f"Token {account_token}",
+    )
+    assert response.status_code == 204
+
+    response = client.post(
+        reverse("user-register"),
+        registration_data,
+        content_type="application/json",
+    )
+
+    assert response.status_code == 201
+
+
+@pytest.mark.django_db
+def test_account_deletion_with_a_wrong_password_keeps_everything(
+    client: Client,
+    existing_account: User,
+    account_token: str,
+    deletion_data: dict[str, str],
+) -> None:
+    """A wrong password is refused with the project message and nothing is deleted."""
+    medication = Medication.objects.create(owner=existing_account, name="Dipirona")
+
+    response = client.post(
+        reverse("user-delete"),
+        {**deletion_data, "password": "Wrong-Kettle-42"},
+        content_type="application/json",
+        HTTP_AUTHORIZATION=f"Token {account_token}",
+    )
+
+    assert response.status_code == 400
+    assert response.json() == {"password": [WRONG_PASSWORD_MESSAGE]}
+    assert User.objects.filter(pk=existing_account.pk).exists()
+    assert Medication.objects.filter(pk=medication.pk).exists()
+
+
+@pytest.mark.django_db
+def test_account_deletion_without_a_password_keeps_the_account(
+    client: Client, existing_account: User, account_token: str
+) -> None:
+    """A request with no password is refused and the account stays."""
+    response = client.post(
+        reverse("user-delete"),
+        {},
+        content_type="application/json",
+        HTTP_AUTHORIZATION=f"Token {account_token}",
+    )
+
+    assert response.status_code == 400
+    assert response.json() == {"password": ["This field is required."]}
+    assert User.objects.filter(pk=existing_account.pk).exists()
+
+
+@pytest.mark.django_db
+def test_account_deletion_without_a_token_keeps_the_account(
+    client: Client, existing_account: User, deletion_data: dict[str, str]
+) -> None:
+    """The endpoint goes through the project's closed default."""
+    response = client.post(
+        reverse("user-delete"),
+        deletion_data,
+        content_type="application/json",
+    )
+
+    assert response.status_code == 401
+    assert User.objects.filter(pk=existing_account.pk).exists()

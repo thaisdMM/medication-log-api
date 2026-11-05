@@ -11,6 +11,7 @@ from users.models import User
 
 DUPLICATE_EMAIL_MESSAGE = "A user with this email address already exists."
 INVALID_CREDENTIALS_MESSAGE = "Unable to log in with the provided credentials."
+WRONG_PASSWORD_MESSAGE = "The password is incorrect."
 
 
 class UserRegistrationSerializer(serializers.ModelSerializer[User]):
@@ -164,3 +165,29 @@ class LoginResponseSerializer(serializers.Serializer[Any]):
 
     token = serializers.CharField()
     expiry = serializers.DateTimeField()
+
+
+class AccountDeletionSerializer(serializers.Serializer[User]):
+    """Check the password of the account behind the token before it is deleted.
+
+    Attributes:
+        password: Plain text password, accepted on input and never returned.
+    """
+
+    password = serializers.CharField(write_only=True, style={"input_type": "password"})
+
+    def validate_password(self, value: str) -> str:
+        """Refuse a password that does not match the account behind the token.
+
+        Args:
+            value: Password as sent.
+
+        Returns:
+            str: The same password, unchanged.
+
+        Raises:
+            ValidationError: When the password does not match the account.
+        """
+        if not self.context["request"].user.check_password(value):
+            raise serializers.ValidationError(WRONG_PASSWORD_MESSAGE)
+        return value
