@@ -29,12 +29,17 @@ enters inside an existing one, or appended at the end (2.9 onward).
 | 2.6 | Retrieve, update and delete | `GET`, `PUT`, `PATCH` and `DELETE /api/medications/<id>/`; 404 on another account's medication; 401 without a token. Branch and pull request | 403 instead of 404 tells another account the medication exists |
 | 2.7 | Interactive documentation and README | the medication endpoints on the Swagger UI page, with the possible values of each closed list; the README describes what is live | the page lists endpoints whose fields it does not describe |
 | 2.8 | Slice proven in production | create, list, retrieve, update, delete, the duplicate 400 and another account's 404 run against the public address; the slice closes in its record | without it, "slice 2 is live" is opinion |
+| 2.9 | Account deletion | `POST /api/users/me/delete/` with the password: 204, and the account, its medications and its tokens leave the database; wrong or missing password 400; 401 without a token; owner foreign key changed to `CASCADE`. Done before 2.7. Branch and pull request | with `PROTECT`, deleting an account that has medications answers 500; without the password, a leaked token alone deletes the account |
 
 ## Decisions
 
 * Operations: list, create, retrieve, update (`PUT` and `PATCH`) and
   delete. Resuming is `PATCH {"state": "in_use"}`, no endpoint of its own.
-* Owner foreign key: `on_delete=PROTECT`.
+* Owner foreign key: `on_delete=PROTECT`, changed to `CASCADE` by 2.9.
+* Account deletion (2.9): deleted, not deactivated, so no health data is
+  kept after the account leaves; the password is asked again. `POST`
+  rather than `DELETE`, because a `DELETE` body has no defined semantics
+  (RFC 9110, 9.3.5) and OpenAPI 3.0 ignores it.
 * Name: leading and trailing spaces trimmed; casing never changed
   (non-goals item 13).
 * Concentration value: a decimal greater than zero, stored with three
