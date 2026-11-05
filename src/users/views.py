@@ -2,6 +2,8 @@
 
 from http import HTTPStatus
 
+from django.utils.decorators import method_decorator
+from django.views.decorators.debug import sensitive_post_parameters
 from drf_spectacular.utils import extend_schema, extend_schema_view
 from knox.views import LoginView as KnoxLoginView
 from knox.views import LogoutAllView as KnoxLogoutAllView
@@ -13,6 +15,7 @@ from rest_framework.response import Response
 
 from users.models import User
 from users.serializers import (
+    AccountDeletionSerializer,
     CurrentUserSerializer,
     LoginResponseSerializer,
     LoginSerializer,
@@ -99,3 +102,30 @@ class LogoutView(KnoxLogoutView):  # type: ignore[misc]
 )
 class LogoutAllView(KnoxLogoutAllView):  # type: ignore[misc]
     """Delete every token of the account, so none of them works any more."""
+
+
+@method_decorator(sensitive_post_parameters("password"), name="dispatch")
+class AccountDeletionView(generics.GenericAPIView[User]):
+    """Delete the account behind the token, once its password is confirmed."""
+
+    serializer_class = AccountDeletionSerializer
+
+    @extend_schema(responses={HTTPStatus.NO_CONTENT: None})
+    def post(self, request: Request) -> Response:
+        """Check the password, then delete the account and everything it owns.
+
+        Args:
+            request: The incoming API request, with the account's password.
+
+        Returns:
+            Response: 204 with no body.
+
+        Raises:
+            ValidationError: When the password is missing or does not match.
+        """
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = request.user
+        assert isinstance(user, User)
+        user.delete()
+        return Response(status=HTTPStatus.NO_CONTENT)

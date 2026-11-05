@@ -32,6 +32,12 @@ def login_data(registration_data: dict[str, str]) -> dict[str, str]:
 
 
 @pytest.fixture
+def deletion_data(registration_data: dict[str, str]) -> dict[str, str]:
+    """The password of the account created from the sign-up data."""
+    return {"password": registration_data["password"]}
+
+
+@pytest.fixture
 def existing_account(registration_data: dict[str, str]) -> User:
     """An active account created from the sign-up data."""
     return User.objects.create_user(**registration_data)

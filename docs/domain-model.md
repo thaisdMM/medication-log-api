@@ -42,6 +42,8 @@ No field is ever made mandatory to close the duplicate constraint (ADR 0008).
   side of the system.
 - Owning records and being a guest are simultaneous, reversible situations of
   the same account.
+- Deleting an account deletes everything it owns: every table that belongs to
+  the account uses `CASCADE` on its account column.
 
 ## Medication
 

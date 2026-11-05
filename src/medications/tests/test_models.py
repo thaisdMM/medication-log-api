@@ -4,7 +4,6 @@ from decimal import Decimal
 
 import pytest
 from django.db import IntegrityError, models, transaction
-from django.db.models import ProtectedError
 
 from medications.models import (
     ConcentrationUnit,
@@ -148,11 +147,13 @@ def test_string_representation_shows_the_class_name_with_the_id(owner: User) -> 
 
 
 @pytest.mark.django_db
-def test_deleting_an_account_with_medications_is_refused(owner: User) -> None:
-    """Deleting the owner raises ProtectedError and keeps the medication."""
+def test_deleting_an_account_deletes_only_its_medications(
+    owner: User, other_account: User
+) -> None:
+    """Deleting the owner removes its medications and keeps another account's."""
     Medication.objects.create(owner=owner, name="Dipirona")
+    kept = Medication.objects.create(owner=other_account, name="Dipirona")
 
-    with pytest.raises(ProtectedError):
-        owner.delete()
+    owner.delete()
 
-    assert Medication.objects.filter(owner=owner).exists()
+    assert list(Medication.objects.values_list("id", flat=True)) == [kept.id]
