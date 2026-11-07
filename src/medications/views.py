@@ -10,7 +10,7 @@ from drf_spectacular.utils import OpenApiResponse, extend_schema, extend_schema_
 from rest_framework import generics
 
 from config.mixins import OwnerFilterMixin
-from config.schema import ErrorDetailSerializer
+from config.schema import MISSING_TOKEN, ErrorDetailSerializer
 from medications.models import Medication
 from medications.serializers import (
     MedicationListFilterSerializer,
@@ -20,9 +20,6 @@ from medications.serializers import (
 INVALID_INPUT = OpenApiResponse(
     OpenApiTypes.OBJECT,
     description="Each refused field with its messages; a duplicate under non_field_errors.",
-)
-MISSING_TOKEN = OpenApiResponse(
-    ErrorDetailSerializer, description="The token is missing, invalid or expired."
 )
 NOT_FOUND = OpenApiResponse(
     ErrorDetailSerializer,
