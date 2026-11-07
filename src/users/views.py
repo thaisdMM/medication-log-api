@@ -23,6 +23,7 @@ from users.serializers import (
 )
 
 
+@extend_schema_view(post=extend_schema(summary="Create an account"))
 class UserRegistrationView(generics.CreateAPIView[User]):
     """Create an account from sign-up data, open to anonymous requests.
 
@@ -37,6 +38,7 @@ class UserRegistrationView(generics.CreateAPIView[User]):
     permission_classes = (AllowAny,)
 
 
+@extend_schema_view(get=extend_schema(summary="Return the current account"))
 class CurrentUserView(generics.RetrieveAPIView[User]):
     """Return the account behind the token in use."""
 
@@ -69,7 +71,11 @@ class LoginView(KnoxLoginView):  # type: ignore[misc]
     authentication_classes = ()
     permission_classes = (AllowAny,)
 
-    @extend_schema(request=LoginSerializer, responses=LoginResponseSerializer)
+    @extend_schema(
+        summary="Log in and get a token",
+        request=LoginSerializer,
+        responses=LoginResponseSerializer,
+    )
     def post(self, request: Request, format: str | None = None) -> Response:
         """Validate the credentials, then let knox create the token.
 
@@ -91,14 +97,22 @@ class LoginView(KnoxLoginView):  # type: ignore[misc]
 
 
 @extend_schema_view(
-    post=extend_schema(request=None, responses={HTTPStatus.NO_CONTENT: None}),
+    post=extend_schema(
+        summary="Log out this token",
+        request=None,
+        responses={HTTPStatus.NO_CONTENT: None},
+    ),
 )
 class LogoutView(KnoxLogoutView):  # type: ignore[misc]
     """Delete the token used in the request, so it stops working at once."""
 
 
 @extend_schema_view(
-    post=extend_schema(request=None, responses={HTTPStatus.NO_CONTENT: None}),
+    post=extend_schema(
+        summary="Log out every token",
+        request=None,
+        responses={HTTPStatus.NO_CONTENT: None},
+    ),
 )
 class LogoutAllView(KnoxLogoutAllView):  # type: ignore[misc]
     """Delete every token of the account, so none of them works any more."""
@@ -110,7 +124,9 @@ class AccountDeletionView(generics.GenericAPIView[User]):
 
     serializer_class = AccountDeletionSerializer
 
-    @extend_schema(responses={HTTPStatus.NO_CONTENT: None})
+    @extend_schema(
+        summary="Delete the account", responses={HTTPStatus.NO_CONTENT: None}
+    )
     def post(self, request: Request) -> Response:
         """Check the password, then delete the account and everything it owns.
 

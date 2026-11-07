@@ -14,6 +14,11 @@ from medications.models import (
     MedicationState,
 )
 
+CONCENTRATION_VALUE_HELP_TEXT = (
+    "Greater than zero, with up to seven digits before the decimal point "
+    "and three places after it."
+)
+
 
 class MedicationSerializer(serializers.ModelSerializer[Medication]):
     """Validate a medication of the requesting account and represent it.
@@ -39,6 +44,7 @@ class MedicationSerializer(serializers.ModelSerializer[Medication]):
             "concentration_value": {
                 "min_value": Decimal("0.001"),
                 "normalize_output": True,
+                "help_text": CONCENTRATION_VALUE_HELP_TEXT,
             }
         }
 

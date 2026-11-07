@@ -174,6 +174,10 @@ SPECTACULAR_SETTINGS = {
     "VERSION": "0.1.0",
     "SERVE_INCLUDE_SCHEMA": False,
     "SERVE_PERMISSIONS": ["rest_framework.permissions.AllowAny"],
+    "POSTPROCESSING_HOOKS": [
+        "drf_spectacular.hooks.postprocess_schema_enums",
+        "config.schema.strip_docstring_sections",
+    ],
     "SWAGGER_UI_DIST": "https://cdn.jsdelivr.net/npm/swagger-ui-dist@5.34.0",
     "SWAGGER_UI_FAVICON_HREF": (
         "https://cdn.jsdelivr.net/npm/swagger-ui-dist@5.34.0/favicon-32x32.png"
