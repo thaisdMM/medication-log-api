@@ -47,6 +47,13 @@ code. Tests follow the rule under Tests.
 """Delete the token used in the request, so it stops working at once."""
 ```
 
+### API schema
+
+- Every operation has a `summary` of its own, set with `extend_schema`, or
+  with `extend_schema_view` for a method the view inherits.
+- The text above the first docstring section is the public description; the
+  sections themselves are cut from the schema by `config/schema.py`.
+
 ## Dependencies and versions
 
 - Direct dependencies are declared in `pyproject.toml` with a floor

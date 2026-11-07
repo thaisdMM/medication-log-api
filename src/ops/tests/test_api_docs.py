@@ -43,3 +43,17 @@ def test_schema_describes_logout_as_answering_with_no_content(
     responses = response.json()["paths"][path]["post"]["responses"]
     assert set(responses) == {"204"}
     assert "content" not in responses["204"]
+
+
+def test_schema_gives_every_operation_its_own_summary(client: Client) -> None:
+    """Every operation in the schema has a summary, and no two share one."""
+    response = client.get("/api/schema/?format=json")
+
+    summaries = [
+        operation.get("summary")
+        for path_item in response.json()["paths"].values()
+        for operation in path_item.values()
+    ]
+    assert summaries
+    assert None not in summaries
+    assert len(set(summaries)) == len(summaries)
