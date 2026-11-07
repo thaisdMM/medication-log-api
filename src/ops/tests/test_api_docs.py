@@ -41,7 +41,6 @@ def test_schema_describes_logout_as_answering_with_no_content(
     response = client.get("/api/schema/?format=json")
 
     responses = response.json()["paths"][path]["post"]["responses"]
-    assert set(responses) == {"204"}
     assert "content" not in responses["204"]
 
 

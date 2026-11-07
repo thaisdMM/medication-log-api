@@ -3,6 +3,7 @@
 from typing import Any
 
 from drf_spectacular.generators import SchemaGenerator
+from drf_spectacular.utils import OpenApiResponse
 from rest_framework import serializers
 from rest_framework.request import Request
 
@@ -60,3 +61,8 @@ class ErrorDetailSerializer(serializers.Serializer[dict[str, str]]):
     """
 
     detail = serializers.CharField()
+
+
+MISSING_TOKEN = OpenApiResponse(
+    ErrorDetailSerializer, description="The token is missing, invalid or expired."
+)

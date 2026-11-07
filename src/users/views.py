@@ -4,7 +4,8 @@ from http import HTTPStatus
 
 from django.utils.decorators import method_decorator
 from django.views.decorators.debug import sensitive_post_parameters
-from drf_spectacular.utils import extend_schema, extend_schema_view
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import OpenApiResponse, extend_schema, extend_schema_view
 from knox.views import LoginView as KnoxLoginView
 from knox.views import LogoutAllView as KnoxLogoutAllView
 from knox.views import LogoutView as KnoxLogoutView
@@ -13,6 +14,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.request import Request
 from rest_framework.response import Response
 
+from config.schema import MISSING_TOKEN
 from users.models import User
 from users.serializers import (
     AccountDeletionSerializer,
@@ -22,8 +24,29 @@ from users.serializers import (
     UserRegistrationSerializer,
 )
 
+INVALID_SIGN_UP = OpenApiResponse(
+    OpenApiTypes.OBJECT,
+    description="Each refused field with its messages, an email in use included.",
+)
+INVALID_LOGIN = OpenApiResponse(
+    OpenApiTypes.OBJECT,
+    description="Refused fields by name; wrong credentials under non_field_errors.",
+)
+INVALID_PASSWORD = OpenApiResponse(
+    OpenApiTypes.OBJECT,
+    description="The password is missing or does not match the account.",
+)
 
-@extend_schema_view(post=extend_schema(summary="Create an account"))
+
+@extend_schema_view(
+    post=extend_schema(
+        summary="Create an account",
+        responses={
+            HTTPStatus.CREATED: UserRegistrationSerializer,
+            HTTPStatus.BAD_REQUEST: INVALID_SIGN_UP,
+        },
+    ),
+)
 class UserRegistrationView(generics.CreateAPIView[User]):
     """Create an account from sign-up data, open to anonymous requests.
 
@@ -38,7 +61,15 @@ class UserRegistrationView(generics.CreateAPIView[User]):
     permission_classes = (AllowAny,)
 
 
-@extend_schema_view(get=extend_schema(summary="Return the current account"))
+@extend_schema_view(
+    get=extend_schema(
+        summary="Return the current account",
+        responses={
+            HTTPStatus.OK: CurrentUserSerializer,
+            HTTPStatus.UNAUTHORIZED: MISSING_TOKEN,
+        },
+    ),
+)
 class CurrentUserView(generics.RetrieveAPIView[User]):
     """Return the account behind the token in use."""
 
@@ -74,7 +105,10 @@ class LoginView(KnoxLoginView):  # type: ignore[misc]
     @extend_schema(
         summary="Log in and get a token",
         request=LoginSerializer,
-        responses=LoginResponseSerializer,
+        responses={
+            HTTPStatus.OK: LoginResponseSerializer,
+            HTTPStatus.BAD_REQUEST: INVALID_LOGIN,
+        },
     )
     def post(self, request: Request, format: str | None = None) -> Response:
         """Validate the credentials, then let knox create the token.
@@ -100,7 +134,10 @@ class LoginView(KnoxLoginView):  # type: ignore[misc]
     post=extend_schema(
         summary="Log out this token",
         request=None,
-        responses={HTTPStatus.NO_CONTENT: None},
+        responses={
+            HTTPStatus.NO_CONTENT: None,
+            HTTPStatus.UNAUTHORIZED: MISSING_TOKEN,
+        },
     ),
 )
 class LogoutView(KnoxLogoutView):  # type: ignore[misc]
@@ -111,7 +148,10 @@ class LogoutView(KnoxLogoutView):  # type: ignore[misc]
     post=extend_schema(
         summary="Log out every token",
         request=None,
-        responses={HTTPStatus.NO_CONTENT: None},
+        responses={
+            HTTPStatus.NO_CONTENT: None,
+            HTTPStatus.UNAUTHORIZED: MISSING_TOKEN,
+        },
     ),
 )
 class LogoutAllView(KnoxLogoutAllView):  # type: ignore[misc]
@@ -125,7 +165,12 @@ class AccountDeletionView(generics.GenericAPIView[User]):
     serializer_class = AccountDeletionSerializer
 
     @extend_schema(
-        summary="Delete the account", responses={HTTPStatus.NO_CONTENT: None}
+        summary="Delete the account",
+        responses={
+            HTTPStatus.NO_CONTENT: None,
+            HTTPStatus.BAD_REQUEST: INVALID_PASSWORD,
+            HTTPStatus.UNAUTHORIZED: MISSING_TOKEN,
+        },
     )
     def post(self, request: Request) -> Response:
         """Check the password, then delete the account and everything it owns.
