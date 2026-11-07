@@ -20,7 +20,7 @@ Docker · GitHub Actions · deployed on Render and Neon.
 first request after a while can take up to a minute to wake the service)
 
 **Interactive documentation:** https://medication-log-api.onrender.com/api/docs/
-(Swagger UI: "Authorize" takes `Token <token from the login>`)
+(how to use it: [below](#using-the-interactive-documentation))
 
 ## Status
 
@@ -29,8 +29,8 @@ through CI, before the next one starts.
 
 | | |
 |---|---|
-| **Done** | Tooling and CI, production deploy, custom user model, registration, token login, current user endpoint, logout, interactive API documentation |
-| **Next** | Medication records owned per account |
+| **Done** | Tooling and CI, production deploy, custom user model, registration, token login, current user endpoint, logout, interactive API documentation, medication records owned per account, account deletion |
+| **Next** | A verification walkthrough that ends in another account's `404` |
 | **Then** | A Telegram bot that answers with the sender's own medication list |
 
 The full plan and the reasons for its order are in the
@@ -62,6 +62,12 @@ The full plan and the reasons for its order are in the
 | `GET` | `/api/users/me/` | token | Returns the account behind the token |
 | `POST` | `/api/auth/logout/` | token | Deletes the token in use |
 | `POST` | `/api/auth/logoutall/` | token | Deletes every token of the account |
+| `POST` | `/api/users/me/delete/` | token | Deletes the account and its medications, after the password is confirmed |
+| `GET` | `/api/medications/` | token | Lists the account's medications, alphabetically; `?state=in_use` or `?state=suspended` filters |
+| `POST` | `/api/medications/` | token | Records a medication: name, concentration value and unit, form, state |
+| `GET` | `/api/medications/<id>/` | token | Returns one of the account's medications |
+| `PUT`, `PATCH` | `/api/medications/<id>/` | token | Edits it; suspending or resuming is `PATCH {"state": ...}` |
+| `DELETE` | `/api/medications/<id>/` | token | Deletes it |
 
 ```bash
 BASE=https://medication-log-api.onrender.com
@@ -74,8 +80,32 @@ curl -X POST $BASE/api/auth/login/ -H "Content-Type: application/json" \
 
 curl $BASE/api/users/me/ -H "Authorization: Token <token from the login>"
 
+curl -X POST $BASE/api/medications/ -H "Authorization: Token <token from the login>" \
+  -H "Content-Type: application/json" \
+  -d '{"name": "Losartan", "concentration_value": "50", "concentration_unit": "mg", "form": "tablet"}'
+
+curl $BASE/api/medications/ -H "Authorization: Token <token from the login>"
+
 curl -X POST $BASE/api/auth/logout/ -H "Authorization: Token <token from the login>"
 ```
+
+## Using the interactive documentation
+
+The [Swagger UI page](https://medication-log-api.onrender.com/api/docs/)
+lists every endpoint with its fields, the values each closed list accepts and
+the responses it can give. It also sends real requests:
+
+1. Open **POST /api/users/**, choose **Try it out**, fill in an email, a name
+   and a password, and choose **Execute**.
+2. Do the same on **POST /api/auth/login/** with that email and password, and
+   copy the `token` from the response.
+3. Choose **Authorize** at the top of the page and type `Token`, a space, and
+   the token. The page does not add the word `Token` by itself.
+4. The endpoints marked with a lock now send that token: try
+   **POST /api/medications/**, then **GET /api/medications/**.
+5. **POST /api/auth/logout/** makes the token stop working.
+
+The public environment only holds fictional data, so use a made-up email.
 
 ## Running locally
 
