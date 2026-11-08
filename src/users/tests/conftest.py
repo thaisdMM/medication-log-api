@@ -4,6 +4,7 @@ import pytest
 from knox.models import AuthToken
 
 from users.models import User
+from users.serializers import ACCOUNT_EXAMPLE
 
 
 @pytest.fixture
@@ -64,4 +65,17 @@ def account_token(existing_account: User) -> str:
 def second_account_token(existing_account: User) -> str:
     """Another valid token for the existing account, as from a second login."""
     _, token = AuthToken.objects.create(user=existing_account)
+    return str(token)
+
+
+@pytest.fixture
+def api_schema_example_account() -> User:
+    """An active account created from the account shown in the API schema examples."""
+    return User.objects.create_user(**ACCOUNT_EXAMPLE)
+
+
+@pytest.fixture
+def api_schema_example_account_token(api_schema_example_account: User) -> str:
+    """A valid token for the account shown in the API schema examples."""
+    _, token = AuthToken.objects.create(user=api_schema_example_account)
     return str(token)

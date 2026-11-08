@@ -15,9 +15,9 @@ INVALID_CREDENTIALS_MESSAGE = "Unable to log in with the provided credentials."
 WRONG_PASSWORD_MESSAGE = "The password is incorrect."
 
 ACCOUNT_EXAMPLE = {
-    "email": "ana.ribeiro@example.com",
-    "name": "Ana Ribeiro",
-    "password": "Blue-Kettle-42",
+    "email": "user@example.com",
+    "name": "Example User",
+    "password": "Quiet-River-58",
 }
 
 

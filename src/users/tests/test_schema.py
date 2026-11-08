@@ -114,8 +114,8 @@ def test_invalid_input_example_matches_the_real_response(
 
 
 @pytest.mark.django_db
-def test_sign_up_request_example_creates_an_account(client: Client) -> None:
-    """The sign-up data in the request example is accepted and opens an account."""
+def test_sign_up_request_example_is_accepted(client: Client) -> None:
+    """The sign-up data in the request example is accepted by the API."""
     body = get_schema(client)["paths"]["/api/users/"]["post"]["requestBody"]
 
     response = client.post(
@@ -140,8 +140,10 @@ def test_sign_up_response_example_shows_every_returned_field(
 
 
 @pytest.mark.django_db
-def test_login_request_example_logs_in(client: Client, existing_account: User) -> None:
-    """The credentials in the login request example open a session."""
+def test_login_request_example_is_accepted(
+    client: Client, api_schema_example_account: User
+) -> None:
+    """The login example logs in to the account shown in the schema examples."""
     body = get_schema(client)["paths"]["/api/auth/login/"]["post"]["requestBody"]
 
     response = client.post(
@@ -178,17 +180,17 @@ def test_current_account_example_shows_every_returned_field(
 
 
 @pytest.mark.django_db
-def test_account_deletion_request_example_deletes_the_account(
-    client: Client, account_token: str
+def test_account_deletion_request_example_is_accepted(
+    client: Client, api_schema_example_account_token: str
 ) -> None:
-    """The password in the deletion request example confirms the deletion."""
+    """The deletion example confirms the password of the schema examples' account."""
     body = get_schema(client)["paths"]["/api/users/me/delete/"]["post"]["requestBody"]
 
     response = client.post(
         "/api/users/me/delete/",
         only_example(body),
         content_type="application/json",
-        HTTP_AUTHORIZATION=f"Token {account_token}",
+        HTTP_AUTHORIZATION=f"Token {api_schema_example_account_token}",
     )
 
     assert response.status_code == 204
