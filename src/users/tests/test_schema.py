@@ -17,6 +17,12 @@ def get_schema(client: Client) -> dict[str, Any]:
     return schema
 
 
+def only_example(body: dict[str, Any]) -> Any:
+    """Return the value of the single example of a request or response body."""
+    (example,) = body["content"]["application/json"]["examples"].values()
+    return example["value"]
+
+
 def named_example(answer: dict[str, Any], name: str) -> Any:
     """Return the value of the example shown with this name in a response."""
     examples = answer["content"]["application/json"]["examples"]
@@ -105,3 +111,86 @@ def test_invalid_input_example_matches_the_real_response(
 
     assert response.status_code == 400
     assert response.json() == named_example(answer, name)
+
+
+@pytest.mark.django_db
+def test_sign_up_request_example_is_accepted(client: Client) -> None:
+    """The sign-up data in the request example is accepted by the API."""
+    body = get_schema(client)["paths"]["/api/users/"]["post"]["requestBody"]
+
+    response = client.post(
+        "/api/users/", only_example(body), content_type="application/json"
+    )
+
+    assert response.status_code == 201
+
+
+@pytest.mark.django_db
+def test_sign_up_response_example_shows_every_returned_field(
+    client: Client, registration_data: dict[str, str]
+) -> None:
+    """The sign-up response example has every field the API returns."""
+    answer = get_schema(client)["paths"]["/api/users/"]["post"]["responses"]["201"]
+
+    response = client.post(
+        "/api/users/", registration_data, content_type="application/json"
+    )
+
+    assert set(only_example(answer)) == set(response.json())
+
+
+@pytest.mark.django_db
+def test_login_request_example_is_accepted(
+    client: Client, api_schema_example_account: User
+) -> None:
+    """The login example logs in to the account shown in the schema examples."""
+    body = get_schema(client)["paths"]["/api/auth/login/"]["post"]["requestBody"]
+
+    response = client.post(
+        "/api/auth/login/", only_example(body), content_type="application/json"
+    )
+
+    assert response.status_code == 200
+
+
+@pytest.mark.django_db
+def test_login_response_example_shows_every_returned_field(
+    client: Client, existing_account: User, login_data: dict[str, str]
+) -> None:
+    """The login response example has every field the API returns."""
+    answer = get_schema(client)["paths"]["/api/auth/login/"]["post"]["responses"]["200"]
+
+    response = client.post(
+        "/api/auth/login/", login_data, content_type="application/json"
+    )
+
+    assert set(only_example(answer)) == set(response.json())
+
+
+@pytest.mark.django_db
+def test_current_account_example_shows_every_returned_field(
+    client: Client, account_token: str
+) -> None:
+    """The current-account response example has every field the API returns."""
+    answer = get_schema(client)["paths"]["/api/users/me/"]["get"]["responses"]["200"]
+
+    response = client.get("/api/users/me/", HTTP_AUTHORIZATION=f"Token {account_token}")
+
+    assert set(only_example(answer)) == set(response.json())
+
+
+@pytest.mark.django_db
+def test_account_deletion_request_example_is_accepted(
+    client: Client, api_schema_example_account_token: str
+) -> None:
+    """The deletion example confirms the password of the schema examples' account."""
+    body = get_schema(client)["paths"]["/api/users/me/delete/"]["post"]["requestBody"]
+
+    response = client.post(
+        "/api/users/me/delete/",
+        only_example(body),
+        content_type="application/json",
+        HTTP_AUTHORIZATION=f"Token {api_schema_example_account_token}",
+    )
+
+    assert response.status_code == 204

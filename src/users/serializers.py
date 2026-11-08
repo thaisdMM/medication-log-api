@@ -5,6 +5,7 @@ from typing import Any
 from django.contrib.auth import authenticate, password_validation
 from django.core.exceptions import ValidationError as DjangoValidationError
 from django.db import IntegrityError, transaction
+from drf_spectacular.utils import OpenApiExample, extend_schema_serializer
 from rest_framework import serializers
 
 from users.models import User
@@ -13,7 +14,19 @@ DUPLICATE_EMAIL_MESSAGE = "A user with this email address already exists."
 INVALID_CREDENTIALS_MESSAGE = "Unable to log in with the provided credentials."
 WRONG_PASSWORD_MESSAGE = "The password is incorrect."
 
+ACCOUNT_EXAMPLE = {
+    "email": "user@example.com",
+    "name": "Example User",
+    "password": "Quiet-River-58",
+}
 
+
+@extend_schema_serializer(
+    examples=[
+        OpenApiExample("Account", value=ACCOUNT_EXAMPLE, request_only=True),
+        OpenApiExample("Account", value={"id": 1}, response_only=True),
+    ]
+)
 class UserRegistrationSerializer(serializers.ModelSerializer[User]):
     """Validate sign-up data and create the account through the user manager.
 
@@ -102,6 +115,15 @@ class UserRegistrationSerializer(serializers.ModelSerializer[User]):
             ) from error
 
 
+@extend_schema_serializer(
+    examples=[
+        OpenApiExample(
+            "Account",
+            value={"id": 1, "name": ACCOUNT_EXAMPLE["name"]},
+            response_only=True,
+        ),
+    ]
+)
 class CurrentUserSerializer(serializers.ModelSerializer[User]):
     """Represent the account behind the token.
 
@@ -116,6 +138,18 @@ class CurrentUserSerializer(serializers.ModelSerializer[User]):
         read_only_fields = fields
 
 
+@extend_schema_serializer(
+    examples=[
+        OpenApiExample(
+            "Credentials",
+            value={
+                "email": ACCOUNT_EXAMPLE["email"],
+                "password": ACCOUNT_EXAMPLE["password"],
+            },
+            request_only=True,
+        ),
+    ]
+)
 class LoginSerializer(serializers.Serializer[User]):
     """Check an email and password pair and resolve the account behind it.
 
@@ -152,6 +186,18 @@ class LoginSerializer(serializers.Serializer[User]):
         return {**attrs, "user": user}
 
 
+@extend_schema_serializer(
+    examples=[
+        OpenApiExample(
+            "Token",
+            value={
+                "expiry": "2026-11-08T22:15:30.123456Z",
+                "token": "3f9a1c7e5b2d8f4a6c0e9b1d7f3a5c8e2b4d6f0a9c1e3b5d7f9a2c4e6b8d0f1a",
+            },
+            response_only=True,
+        ),
+    ]
+)
 class LoginResponseSerializer(serializers.Serializer[Any]):
     """Describe the body of a successful login, for the API schema only.
 
@@ -167,6 +213,15 @@ class LoginResponseSerializer(serializers.Serializer[Any]):
     expiry = serializers.DateTimeField()
 
 
+@extend_schema_serializer(
+    examples=[
+        OpenApiExample(
+            "Password",
+            value={"password": ACCOUNT_EXAMPLE["password"]},
+            request_only=True,
+        ),
+    ]
+)
 class AccountDeletionSerializer(serializers.Serializer[User]):
     """Check the password of the account behind the token before it is deleted.
 
