@@ -30,6 +30,7 @@ enters inside an existing one, or appended at the end (2.9 onward).
 | 2.7 | Interactive documentation and README | the medication endpoints on the Swagger UI page, with the possible values of each closed list; the README describes what is live | the page lists endpoints whose fields it does not describe |
 | 2.8 | Slice proven in production | create, list, retrieve, update, delete, the duplicate 400 and another account's 404 run against the public address; the slice closes in its record | without it, "slice 2 is live" is opinion |
 | 2.9 | Account deletion | `POST /api/users/me/delete/` with the password: 204, and the account, its medications and its tokens leave the database; wrong or missing password 400; 401 without a token; owner foreign key changed to `CASCADE`. Done before 2.7. Branch and pull request | with `PROTECT`, deleting an account that has medications answers 500; without the password, a leaked token alone deletes the account |
+| 2.10 | Error and medication examples in the schema | every error response on the Swagger UI page shows an example body, each 400 describes a map of field to messages, and the medication request and response show a full example; the API itself is unchanged. Done before 2.8. Branch and pull request | the page shows `additionalProp1` for a 400 and `-.935` for a concentration, examples a reader cannot trust |
 
 ## Decisions
 
