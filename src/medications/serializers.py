@@ -6,6 +6,7 @@ from typing import Any, ClassVar
 
 from django.core.exceptions import ValidationError as DjangoValidationError
 from django.db import IntegrityError, transaction
+from drf_spectacular.utils import OpenApiExample, extend_schema_serializer
 from rest_framework import serializers
 
 from medications.models import (
@@ -18,8 +19,23 @@ CONCENTRATION_VALUE_HELP_TEXT = (
     "Greater than zero, with up to seven digits before the decimal point "
     "and three places after it."
 )
+MEDICATION_EXAMPLE = {
+    "name": "Dipirona",
+    "concentration_value": "500",
+    "concentration_unit": "mg",
+    "form": "tablet",
+    "state": "in_use",
+}
 
 
+@extend_schema_serializer(
+    examples=[
+        OpenApiExample("Medication", value=MEDICATION_EXAMPLE, request_only=True),
+        OpenApiExample(
+            "Medication", value={"id": 1, **MEDICATION_EXAMPLE}, response_only=True
+        ),
+    ]
+)
 class MedicationSerializer(serializers.ModelSerializer[Medication]):
     """Validate a medication of the requesting account and represent it.
 

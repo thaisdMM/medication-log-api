@@ -53,6 +53,10 @@ code. Tests follow the rule under Tests.
   with `extend_schema_view` for a method the view inherits.
 - The text above the first docstring section is the public description; the
   sections themselves are cut from the schema by `config/schema.py`.
+- Every error response has an example, set on its `OpenApiResponse`. A
+  message the project defines enters the example through its constant; a
+  message from Django or a library is written out as the real response writes
+  it.
 
 ## Dependencies and versions
 

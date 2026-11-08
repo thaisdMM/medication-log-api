@@ -3,11 +3,15 @@
 from typing import Any
 
 from drf_spectacular.generators import SchemaGenerator
-from drf_spectacular.utils import OpenApiResponse
+from drf_spectacular.utils import OpenApiExample, OpenApiResponse
 from rest_framework import serializers
 from rest_framework.request import Request
 
 DOCSTRING_SECTIONS = frozenset({"Args:", "Attributes:", "Raises:", "Returns:"})
+FIELD_ERRORS_SCHEMA = {
+    "type": "object",
+    "additionalProperties": {"type": "array", "items": {"type": "string"}},
+}
 
 
 def strip_docstring_sections(
@@ -64,5 +68,13 @@ class ErrorDetailSerializer(serializers.Serializer[dict[str, str]]):
 
 
 MISSING_TOKEN = OpenApiResponse(
-    ErrorDetailSerializer, description="The token is missing, invalid or expired."
+    ErrorDetailSerializer,
+    description="The token is missing, invalid or expired.",
+    examples=[
+        OpenApiExample(
+            "No token",
+            value={"detail": "Authentication credentials were not provided."},
+        ),
+        OpenApiExample("Invalid or expired token", value={"detail": "Invalid token."}),
+    ],
 )

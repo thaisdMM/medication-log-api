@@ -4,8 +4,12 @@ from http import HTTPStatus
 
 from django.utils.decorators import method_decorator
 from django.views.decorators.debug import sensitive_post_parameters
-from drf_spectacular.types import OpenApiTypes
-from drf_spectacular.utils import OpenApiResponse, extend_schema, extend_schema_view
+from drf_spectacular.utils import (
+    OpenApiExample,
+    OpenApiResponse,
+    extend_schema,
+    extend_schema_view,
+)
 from knox.views import LoginView as KnoxLoginView
 from knox.views import LogoutAllView as KnoxLogoutAllView
 from knox.views import LogoutView as KnoxLogoutView
@@ -14,9 +18,12 @@ from rest_framework.permissions import AllowAny
 from rest_framework.request import Request
 from rest_framework.response import Response
 
-from config.schema import MISSING_TOKEN
+from config.schema import FIELD_ERRORS_SCHEMA, MISSING_TOKEN
 from users.models import User
 from users.serializers import (
+    DUPLICATE_EMAIL_MESSAGE,
+    INVALID_CREDENTIALS_MESSAGE,
+    WRONG_PASSWORD_MESSAGE,
     AccountDeletionSerializer,
     CurrentUserSerializer,
     LoginResponseSerializer,
@@ -25,16 +32,46 @@ from users.serializers import (
 )
 
 INVALID_SIGN_UP = OpenApiResponse(
-    OpenApiTypes.OBJECT,
+    FIELD_ERRORS_SCHEMA,
     description="Each refused field with its messages, an email in use included.",
+    examples=[
+        OpenApiExample(
+            "Refused field",
+            value={
+                "email": ["This field is required."],
+                "name": ["This field is required."],
+                "password": ["This field is required."],
+            },
+        ),
+        OpenApiExample("Email in use", value={"email": [DUPLICATE_EMAIL_MESSAGE]}),
+    ],
 )
 INVALID_LOGIN = OpenApiResponse(
-    OpenApiTypes.OBJECT,
+    FIELD_ERRORS_SCHEMA,
     description="Refused fields by name; wrong credentials under non_field_errors.",
+    examples=[
+        OpenApiExample(
+            "Refused field",
+            value={
+                "email": ["This field is required."],
+                "password": ["This field is required."],
+            },
+        ),
+        OpenApiExample(
+            "Wrong credentials",
+            value={"non_field_errors": [INVALID_CREDENTIALS_MESSAGE]},
+        ),
+    ],
 )
 INVALID_PASSWORD = OpenApiResponse(
-    OpenApiTypes.OBJECT,
+    FIELD_ERRORS_SCHEMA,
     description="The password is missing or does not match the account.",
+    examples=[
+        OpenApiExample(
+            "Missing password", value={"password": ["This field is required."]}
+        ),
+        OpenApiExample("Wrong password", value={"password": [WRONG_PASSWORD_MESSAGE]}),
+    ],
 )
 
 

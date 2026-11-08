@@ -5,25 +5,56 @@ from typing import Any
 
 from django.db.models import QuerySet
 from django.db.models.functions import Collate, Lower
-from drf_spectacular.types import OpenApiTypes
-from drf_spectacular.utils import OpenApiResponse, extend_schema, extend_schema_view
+from drf_spectacular.utils import (
+    OpenApiExample,
+    OpenApiResponse,
+    extend_schema,
+    extend_schema_view,
+)
 from rest_framework import generics
 
 from config.mixins import OwnerFilterMixin
-from config.schema import MISSING_TOKEN, ErrorDetailSerializer
-from medications.models import Medication
+from config.schema import FIELD_ERRORS_SCHEMA, MISSING_TOKEN, ErrorDetailSerializer
+from medications.models import DUPLICATE_MEDICATION_MESSAGE, Medication
 from medications.serializers import (
     MedicationListFilterSerializer,
     MedicationSerializer,
 )
 
 INVALID_INPUT = OpenApiResponse(
-    OpenApiTypes.OBJECT,
+    FIELD_ERRORS_SCHEMA,
     description="Each refused field with its messages; a duplicate under non_field_errors.",
+    examples=[
+        OpenApiExample(
+            "Refused field",
+            value={
+                "concentration_value": [
+                    "Ensure this value is greater than or equal to 0.001."
+                ]
+            },
+        ),
+        OpenApiExample(
+            "Duplicate", value={"non_field_errors": [DUPLICATE_MEDICATION_MESSAGE]}
+        ),
+    ],
+)
+INVALID_STATE = OpenApiResponse(
+    FIELD_ERRORS_SCHEMA,
+    description="The state is outside the closed list.",
+    examples=[
+        OpenApiExample(
+            "Invalid state", value={"state": ['"paused" is not a valid choice.']}
+        ),
+    ],
 )
 NOT_FOUND = OpenApiResponse(
     ErrorDetailSerializer,
     description="No medication with this id belongs to the account.",
+    examples=[
+        OpenApiExample(
+            "Not found", value={"detail": "No Medication matches the given query."}
+        ),
+    ],
 )
 
 
@@ -33,9 +64,7 @@ NOT_FOUND = OpenApiResponse(
         parameters=[MedicationListFilterSerializer],
         responses={
             HTTPStatus.OK: MedicationSerializer(many=True),
-            HTTPStatus.BAD_REQUEST: OpenApiResponse(
-                OpenApiTypes.OBJECT, description="The state is outside the closed list."
-            ),
+            HTTPStatus.BAD_REQUEST: INVALID_STATE,
             HTTPStatus.UNAUTHORIZED: MISSING_TOKEN,
         },
     ),
