@@ -118,6 +118,14 @@ this file goes stale and becomes the exact error rule 10 exists to prevent.
 12. **Never run commands that modify state without permission.**
     This includes installs, file deletions, and edits to configuration files.
 
+13. **Every bug found is fixed, with a regression test.**
+    A bug is behaviour that differs from what the documentation, an ADR or
+    `docs/api-behaviour.md` states. First write a test that reproduces it and
+    see it fail against the current code, with no deliberate break, then fix
+    the code until it passes. The test stays in the suite so the bug cannot
+    return. A bug outside the current task follows rule 4: record it in the
+    map and fix it in its own task and pull request.
+
 ## Rule 1 vs Rule 5 — clarification
 
 These rules look similar but cover different situations:
