@@ -149,8 +149,10 @@ A stretch of time during which an account took one medication.
 - It is personal data — it links the account to a Telegram account
   (non-goals item 15).
 - **It is not a phone number.** The system never asks for, sees or stores one.
-- How the backend confirms that a conversation belongs to an account is open
-  (`docs/open-questions.md`). The answer may add a column or a table.
+- The account links its conversation through a deep link with a one-time
+  code (ADR 0020). The link lives in a table of its own, not a column on the
+  account: one conversation per account, and deleting the account deletes
+  the link.
 
 ## How accounts stay separated
 

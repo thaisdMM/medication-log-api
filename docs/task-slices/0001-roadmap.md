@@ -95,6 +95,10 @@ The order between them still holds:
   owner filter is where that change lands, so it touches one place instead of
   every endpoint.
 
+Also kept for later, outside the slice numbering: a WhatsApp Cloud API
+integration. It needs a phone number of its own, and non-goals item 4 must be
+revoked by an ADR first. Research: branch `research/whatsapp-requirements`.
+
 ---
 
 ## Revision 1 — 2026-08-26

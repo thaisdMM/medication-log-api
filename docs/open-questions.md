@@ -20,13 +20,6 @@ The rule forbidding two active usage periods of the same medication is dropped
 (`docs/domain-model.md`). Whether another rule replaces it, or none does, is
 open.
 
-## Slice 7 — How does the backend know which account a conversation belongs to?
-
-Blocks: the Telegram integration — the only open blocker of a decided feature.
-No source decides the mechanism. What is known: the account starts the
-conversation from its own phone, because a bot cannot start one. The answer may
-add a column or a table.
-
 ## Slice 7 — Does the webhook survive the free tier's hibernation?
 
 The free web service hibernates after 15 minutes idle and takes about a minute
