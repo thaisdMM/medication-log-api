@@ -20,14 +20,6 @@ The rule forbidding two active usage periods of the same medication is dropped
 (`docs/domain-model.md`). Whether another rule replaces it, or none does, is
 open.
 
-## Slice 7 — Does the webhook survive the free tier's hibernation?
-
-The free web service hibernates after 15 minutes idle and takes about a minute
-to wake (ADR 0001). Telegram has a time limit for a webhook to answer and a
-retry policy on failure. To research: that limit, that policy, and whether the
-wake-up fits inside them. ADR 0001 reserves a €5–10/month valve for the web
-service if hibernation becomes a real problem.
-
 ## Closed — Hosting: pending verifications for task 0.11
 
 Source: `DECISAO_HOSPEDAGEM.md`, partly closed by ADR 0001. From ETAPA2 A9.
