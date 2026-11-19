@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     "drf_spectacular",
     "knox",
     "medications.apps.MedicationsConfig",
+    "telegram.apps.TelegramConfig",
     "users.apps.UsersConfig",
     "ops.apps.OpsConfig",
 ]
@@ -183,3 +184,8 @@ SPECTACULAR_SETTINGS = {
         "https://cdn.jsdelivr.net/npm/swagger-ui-dist@5.34.0/favicon-32x32.png"
     ),
 }
+
+
+# Telegram bot
+
+TELEGRAM_WEBHOOK_SECRET = env.str("TELEGRAM_WEBHOOK_SECRET", default="")
