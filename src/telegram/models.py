@@ -53,7 +53,7 @@ class TelegramLinkCodeManager(models.Manager["TelegramLinkCode"]):
     """Manager that issues the link codes of an account."""
 
     def issue(self, account: User) -> str:
-        """Create a new link code for the account and cancel its earlier ones.
+        """Create a new link code for the account and delete its earlier ones.
 
         Args:
             account: The account that asks to link its conversation.

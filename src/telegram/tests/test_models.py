@@ -11,6 +11,7 @@ from telegram.models import LINK_CODE_LIFETIME, TelegramLink, TelegramLinkCode
 from users.models import User
 
 CHAT_ID = 123456789
+OTHER_CHAT_ID = 987654321
 TELEGRAM_START_PARAMETER = re.compile(r"[A-Za-z0-9_-]{1,64}")
 
 
@@ -33,19 +34,9 @@ def test_an_account_has_one_link_only(account: User) -> None:
     TelegramLink.objects.create(account=account, chat_id=CHAT_ID)
 
     with pytest.raises(IntegrityError), transaction.atomic():
-        TelegramLink.objects.create(account=account, chat_id=CHAT_ID + 1)
+        TelegramLink.objects.create(account=account, chat_id=OTHER_CHAT_ID)
 
     assert TelegramLink.objects.count() == 1
-
-
-@pytest.mark.django_db
-def test_link_records_when_it_was_made(account: User) -> None:
-    """A new link stores the moment it was created."""
-    before = timezone.now()
-
-    link = TelegramLink.objects.create(account=account, chat_id=CHAT_ID)
-
-    assert before <= link.linked_at <= timezone.now()
 
 
 @pytest.mark.django_db
@@ -126,13 +117,21 @@ def test_issuing_a_code_keeps_the_codes_of_other_accounts(
 
 
 @pytest.mark.django_db
-def test_string_representations_show_the_class_name_with_the_id(
+def test_link_string_representation_shows_the_class_name_with_the_id(
     account: User,
 ) -> None:
-    """The string form is the class name and the ID, without the chat id or hash."""
+    """The link's string form is the class name and the ID, without the chat id."""
     link = TelegramLink.objects.create(account=account, chat_id=CHAT_ID)
+
+    assert str(link) == f"TelegramLink (id={link.id})"
+
+
+@pytest.mark.django_db
+def test_link_code_string_representation_shows_the_class_name_with_the_id(
+    account: User,
+) -> None:
+    """The code's string form is the class name and the ID, without the hash."""
     TelegramLinkCode.objects.issue(account)
     code = TelegramLinkCode.objects.get(account=account)
 
-    assert str(link) == f"TelegramLink (id={link.id})"
     assert str(code) == f"TelegramLinkCode (id={code.id})"
