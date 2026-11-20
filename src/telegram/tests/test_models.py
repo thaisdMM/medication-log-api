@@ -62,7 +62,7 @@ def test_deleting_the_account_deletes_its_link_codes(account: User) -> None:
 @pytest.mark.django_db
 def test_issued_code_uses_only_the_characters_telegram_accepts(account: User) -> None:
     """The code fits the start parameter: letters, digits, _ and -, up to 64."""
-    code = TelegramLinkCode.objects.issue(account)
+    code, _ = TelegramLinkCode.objects.issue(account)
 
     assert TELEGRAM_START_PARAMETER.fullmatch(code)
 
@@ -70,11 +70,21 @@ def test_issued_code_uses_only_the_characters_telegram_accepts(account: User) ->
 @pytest.mark.django_db
 def test_issued_code_is_stored_only_as_its_hash(account: User) -> None:
     """The database keeps the SHA-256 of the code, never the code itself."""
-    code = TelegramLinkCode.objects.issue(account)
+    code, _ = TelegramLinkCode.objects.issue(account)
 
     stored = TelegramLinkCode.objects.get(account=account)
 
     assert stored.code_hash == hashlib.sha256(code.encode()).hexdigest()
+
+
+@pytest.mark.django_db
+def test_issued_code_comes_with_the_row_stored_for_it(account: User) -> None:
+    """Issuing returns, next to the code, the stored row that holds its hash."""
+    code, link_code = TelegramLinkCode.objects.issue(account)
+
+    assert link_code == TelegramLinkCode.objects.get(
+        code_hash=hashlib.sha256(code.encode()).hexdigest()
+    )
 
 
 @pytest.mark.django_db
@@ -97,7 +107,7 @@ def test_issuing_a_code_cancels_the_account_earlier_codes(account: User) -> None
     """Only the newest code of the account stays in the database."""
     TelegramLinkCode.objects.issue(account)
 
-    newest = TelegramLinkCode.objects.issue(account)
+    newest, _ = TelegramLinkCode.objects.issue(account)
 
     assert list(TelegramLinkCode.objects.values_list("code_hash", flat=True)) == [
         hashlib.sha256(newest.encode()).hexdigest()
