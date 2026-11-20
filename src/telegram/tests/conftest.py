@@ -1,6 +1,7 @@
 """Shared fixtures for the Telegram bot tests."""
 
 import pytest
+from knox.models import AuthToken
 from pytest_django.fixtures import Settings
 
 from users.models import User
@@ -11,6 +12,13 @@ def webhook_secret(settings: Settings) -> str:
     """The secret Telegram sends with every update, set for the test."""
     settings.TELEGRAM_WEBHOOK_SECRET = "test-webhook-secret_42"
     return "test-webhook-secret_42"
+
+
+@pytest.fixture
+def bot_username(settings: Settings) -> str:
+    """The bot's user name, which the deep link points to, set for the test."""
+    settings.TELEGRAM_BOT_USERNAME = "test_link_bot"
+    return "test_link_bot"
 
 
 @pytest.fixture
@@ -31,3 +39,10 @@ def other_account() -> User:
         name="Bruno Costa",
         password="Green-Lantern-17",
     )
+
+
+@pytest.fixture
+def account_token(account: User) -> str:
+    """A valid token for the account that links its conversation."""
+    _, token = AuthToken.objects.create(user=account)
+    return str(token)

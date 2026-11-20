@@ -52,25 +52,26 @@ class TelegramLink(models.Model):
 class TelegramLinkCodeManager(models.Manager["TelegramLinkCode"]):
     """Manager that issues the link codes of an account."""
 
-    def issue(self, account: User) -> str:
+    def issue(self, account: User) -> tuple[str, TelegramLinkCode]:
         """Create a new link code for the account and delete its earlier ones.
 
         Args:
             account: The account that asks to link its conversation.
 
         Returns:
-            str: The new code, made of the characters Telegram accepts in the
-                start parameter. Only its hash is stored.
+            tuple[str, TelegramLinkCode]: The new code, made of the characters
+                Telegram accepts in the start parameter, and the stored row,
+                which holds only its hash.
         """
         code = secrets.token_urlsafe(LINK_CODE_BYTES)
         with transaction.atomic():
             self.filter(account=account).delete()
-            self.create(
+            link_code = self.create(
                 account=account,
                 code_hash=hash_link_code(code),
                 expires_at=timezone.now() + LINK_CODE_LIFETIME,
             )
-        return code
+        return code, link_code
 
 
 class TelegramLinkCode(models.Model):
