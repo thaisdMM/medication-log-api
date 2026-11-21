@@ -13,7 +13,6 @@ from telegram.models import TelegramLink, TelegramLinkCode, TelegramLinkCodeMana
 from telegram.views import BOT_NOT_CONFIGURED_MESSAGE, LINK_NOT_FOUND_MESSAGE
 from users.models import User
 
-CHAT_ID = 123456789
 OTHER_CHAT_ID = 987654321
 ISSUE = TelegramLinkCodeManager.issue
 
@@ -121,17 +120,15 @@ def test_link_request_issues_no_code_while_the_bot_username_is_not_configured(
 
 @pytest.mark.django_db
 def test_link_status_shows_only_when_the_account_was_linked(
-    client: Client, account: User, account_token: str
+    client: Client, account_token: str, account_link: TelegramLink
 ) -> None:
     """A linked account sees when it was linked, and never its chat id."""
-    link = TelegramLink.objects.create(account=account, chat_id=CHAT_ID)
-
     response = client.get(
         reverse("telegram-link"), HTTP_AUTHORIZATION=f"Token {account_token}"
     )
 
     assert response.status_code == 200
-    assert response.json() == {"linked_at": as_returned(link.linked_at)}
+    assert response.json() == {"linked_at": as_returned(account_link.linked_at)}
 
 
 @pytest.mark.django_db
@@ -163,11 +160,9 @@ def test_link_status_leaves_out_another_account_link(
 
 @pytest.mark.django_db
 def test_unlinking_answers_with_no_body(
-    client: Client, account: User, account_token: str
+    client: Client, account_token: str, account_link: TelegramLink
 ) -> None:
     """Undoing an existing link is answered with an empty body."""
-    TelegramLink.objects.create(account=account, chat_id=CHAT_ID)
-
     response = client.delete(
         reverse("telegram-link"), HTTP_AUTHORIZATION=f"Token {account_token}"
     )
@@ -178,11 +173,9 @@ def test_unlinking_answers_with_no_body(
 
 @pytest.mark.django_db
 def test_unlinking_deletes_the_account_link(
-    client: Client, account: User, account_token: str
+    client: Client, account: User, account_token: str, account_link: TelegramLink
 ) -> None:
     """After unlinking, the account has no link in the database."""
-    TelegramLink.objects.create(account=account, chat_id=CHAT_ID)
-
     response = client.delete(
         reverse("telegram-link"), HTTP_AUTHORIZATION=f"Token {account_token}"
     )
@@ -193,12 +186,13 @@ def test_unlinking_deletes_the_account_link(
 
 @pytest.mark.django_db
 def test_unlinking_deletes_the_account_link_codes(
-    client: Client, account: User, account_token: str
+    client: Client,
+    account: User,
+    account_token: str,
+    link_code: str,
+    account_link: TelegramLink,
 ) -> None:
     """After unlinking, a link code the account asked for no longer works."""
-    TelegramLink.objects.create(account=account, chat_id=CHAT_ID)
-    TelegramLinkCode.objects.issue(account)
-
     response = client.delete(
         reverse("telegram-link"), HTTP_AUTHORIZATION=f"Token {account_token}"
     )
@@ -222,11 +216,9 @@ def test_unlinking_an_account_without_a_link_is_not_found(
 
 @pytest.mark.django_db
 def test_unlinking_an_account_without_a_link_still_deletes_its_link_codes(
-    client: Client, account: User, account_token: str
+    client: Client, account: User, account_token: str, link_code: str
 ) -> None:
     """A link asked for but not used yet can be cancelled before anyone opens it."""
-    TelegramLinkCode.objects.issue(account)
-
     response = client.delete(
         reverse("telegram-link"), HTTP_AUTHORIZATION=f"Token {account_token}"
     )
@@ -237,10 +229,12 @@ def test_unlinking_an_account_without_a_link_still_deletes_its_link_codes(
 
 @pytest.mark.django_db
 def test_unlinking_keeps_another_account_link(
-    client: Client, account: User, account_token: str, other_account: User
+    client: Client,
+    other_account: User,
+    account_token: str,
+    account_link: TelegramLink,
 ) -> None:
     """Unlinking one account leaves another account's link in place."""
-    TelegramLink.objects.create(account=account, chat_id=CHAT_ID)
     TelegramLink.objects.create(account=other_account, chat_id=OTHER_CHAT_ID)
 
     response = client.delete(
@@ -253,10 +247,12 @@ def test_unlinking_keeps_another_account_link(
 
 @pytest.mark.django_db
 def test_unlinking_keeps_another_account_link_codes(
-    client: Client, account: User, account_token: str, other_account: User
+    client: Client,
+    other_account: User,
+    account_token: str,
+    account_link: TelegramLink,
 ) -> None:
     """Unlinking one account leaves another account's link code in place."""
-    TelegramLink.objects.create(account=account, chat_id=CHAT_ID)
     TelegramLinkCode.objects.issue(other_account)
 
     response = client.delete(
