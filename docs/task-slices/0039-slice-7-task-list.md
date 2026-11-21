@@ -42,7 +42,7 @@ enters inside an existing one, or appended at the end (7.7 onward).
   exists and since when, `DELETE` unlinks. `/api/users/me/` is unchanged.
 * Unlinking through the bot is left to the later release.
 * Commands: `/start <code>`, `/list` and `/help`. Bot replies in English.
-* `/list`: medications in use only, with name, concentration and unit.
+* `/list`: medications in use only, with name, concentration, unit and form.
 * The bot replies inside the webhook response (`"method": "sendMessage"`):
   no outgoing HTTP call and no Telegram library. Whether the reply was
   delivered is not visible to the backend.
