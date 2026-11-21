@@ -7,6 +7,8 @@ from django.db import models
 from django.db.models import F, QuerySet
 from django.db.models.functions import Collate, Lower
 
+from users.models import User
+
 DUPLICATE_MEDICATION_MESSAGE = (
     "You already have this medication with the same concentration and form."
 )
@@ -43,7 +45,7 @@ class MedicationState(models.TextChoices):
 
 
 class MedicationManager(models.Manager["Medication"]):
-    """Manager that lists the medications in name order."""
+    """Manager that lists the medications in name order and those an account takes."""
 
     def ordered_by_name(self) -> QuerySet[Medication]:
         """Return the medications sorted by name.
@@ -53,6 +55,20 @@ class MedicationManager(models.Manager["Medication"]):
                 accents, the oldest first among equal names.
         """
         return self.order_by(Collate(Lower("name"), "und-x-icu"), "id")
+
+    def in_use_by(self, account: User) -> QuerySet[Medication]:
+        """Return the account's medications in use, in name order.
+
+        Args:
+            account: The account whose medications are listed.
+
+        Returns:
+            QuerySet[Medication]: The medications the account owns and marked in
+                use, sorted as ordered_by_name sorts them.
+        """
+        return self.ordered_by_name().filter(
+            owner=account, state=MedicationState.IN_USE
+        )
 
 
 class Medication(models.Model):
