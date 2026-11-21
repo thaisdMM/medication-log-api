@@ -1,6 +1,9 @@
 """Shared fixtures for the Telegram bot tests."""
 
+from datetime import timedelta
+
 import pytest
+from django.utils import timezone
 from knox.models import AuthToken
 from pytest_django.fixtures import Settings
 
@@ -59,6 +62,16 @@ def account_token(account: User) -> str:
 def link_code(account: User) -> str:
     """A link code the account asked for and has not used yet."""
     code, _ = TelegramLinkCode.objects.issue(account)
+    return code
+
+
+@pytest.fixture
+def expired_link_code(account: User) -> str:
+    """A link code the account asked for and let expire."""
+    code, stored = TelegramLinkCode.objects.issue(account)
+    TelegramLinkCode.objects.filter(pk=stored.pk).update(
+        expires_at=timezone.now() - timedelta(seconds=1)
+    )
     return code
 
 

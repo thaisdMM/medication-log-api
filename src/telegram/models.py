@@ -50,7 +50,7 @@ class TelegramLink(models.Model):
 
 
 class TelegramLinkCodeManager(models.Manager["TelegramLinkCode"]):
-    """Manager that issues the link codes of an account."""
+    """Manager that issues the link codes of an account and uses them up."""
 
     def issue(self, account: User) -> tuple[str, TelegramLinkCode]:
         """Create a new link code for the account and delete its earlier ones.
@@ -72,6 +72,37 @@ class TelegramLinkCodeManager(models.Manager["TelegramLinkCode"]):
                 expires_at=timezone.now() + LINK_CODE_LIFETIME,
             )
         return code, link_code
+
+    def link_chat(self, code: str, chat_id: int) -> bool:
+        """Use a link code to link the chat to the account that asked for it.
+
+        A valid code is deleted, and so are the earlier links of that account
+        and of that chat, so each ends up with this link only.
+
+        Args:
+            code: The link code the chat sent with the start command.
+            chat_id: The conversation id Telegram assigns to the chat.
+
+        Returns:
+            bool: True when the code was valid and the chat is now linked;
+                False when the code is expired, used or unknown.
+        """
+        with transaction.atomic():
+            link_code = (
+                self.select_for_update()
+                .filter(code_hash=hash_link_code(code), expires_at__gt=timezone.now())
+                .first()
+            )
+            if link_code is None:
+                return False
+            link_code.delete()
+            TelegramLink.objects.filter(
+                models.Q(account_id=link_code.account_id) | models.Q(chat_id=chat_id)
+            ).delete()
+            TelegramLink.objects.create(
+                account_id=link_code.account_id, chat_id=chat_id
+            )
+        return True
 
 
 class TelegramLinkCode(models.Model):
