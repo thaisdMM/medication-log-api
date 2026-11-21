@@ -4,7 +4,6 @@ from http import HTTPStatus
 from typing import Any
 
 from django.db.models import QuerySet
-from django.db.models.functions import Collate, Lower
 from drf_spectacular.utils import (
     OpenApiExample,
     OpenApiResponse,
@@ -86,7 +85,7 @@ class MedicationListCreateView(
         owner_path: Lookup path from the medication to the owning account.
     """
 
-    queryset = Medication.objects.order_by(Collate(Lower("name"), "und-x-icu"), "id")
+    queryset = Medication.objects.ordered_by_name()
     serializer_class = MedicationSerializer
     owner_path = "owner"
 
