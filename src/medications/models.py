@@ -4,8 +4,8 @@ from typing import ClassVar
 
 from django.conf import settings
 from django.db import models
-from django.db.models import F
-from django.db.models.functions import Lower
+from django.db.models import F, QuerySet
+from django.db.models.functions import Collate, Lower
 
 DUPLICATE_MEDICATION_MESSAGE = (
     "You already have this medication with the same concentration and form."
@@ -42,6 +42,19 @@ class MedicationState(models.TextChoices):
     SUSPENDED = "suspended"
 
 
+class MedicationManager(models.Manager["Medication"]):
+    """Manager that lists the medications in name order."""
+
+    def ordered_by_name(self) -> QuerySet[Medication]:
+        """Return the medications sorted by name.
+
+        Returns:
+            QuerySet[Medication]: The medications sorted by name ignoring case and
+                accents, the oldest first among equal names.
+        """
+        return self.order_by(Collate(Lower("name"), "und-x-icu"), "id")
+
+
 class Medication(models.Model):
     """A medication an account records: a name, a concentration and a form.
 
@@ -66,6 +79,8 @@ class Medication(models.Model):
     state = models.CharField(
         max_length=20, choices=MedicationState, default=MedicationState.IN_USE
     )
+
+    objects: ClassVar[MedicationManager] = MedicationManager()
 
     class Meta:
         constraints: ClassVar[list[models.BaseConstraint]] = [
