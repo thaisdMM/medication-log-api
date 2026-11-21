@@ -10,14 +10,14 @@ UPDATE = {"update_id": 1}
 
 
 def test_webhook_accepts_an_update_carrying_the_secret(
-    client: Client, webhook_secret: str
+    client: Client, secret_header: dict[str, str]
 ) -> None:
     """An update sent with the configured secret is answered with no reply."""
     response = client.post(
         WEBHOOK_URL,
         UPDATE,
         content_type="application/json",
-        headers={SECRET_HEADER: webhook_secret},
+        headers=secret_header,
     )
 
     assert response.status_code == 200
