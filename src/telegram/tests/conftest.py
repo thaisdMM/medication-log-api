@@ -8,6 +8,7 @@ from knox.models import AuthToken
 from pytest_django.fixtures import Settings
 
 from telegram.models import TelegramLink, TelegramLinkCode
+from telegram.tests.updates import CHAT_ID
 from users.models import User
 
 
@@ -78,4 +79,4 @@ def expired_link_code(account: User) -> str:
 @pytest.fixture
 def account_link(account: User) -> TelegramLink:
     """The account's link with its conversation with the bot."""
-    return TelegramLink.objects.create(account=account, chat_id=123456789)
+    return TelegramLink.objects.create(account=account, chat_id=CHAT_ID)
