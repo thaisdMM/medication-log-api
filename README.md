@@ -4,17 +4,22 @@
 ![Python 3.14](https://img.shields.io/badge/python-3.14-blue)
 ![Django 6.1](https://img.shields.io/badge/django-6.1-darkgreen)
 [![License: MIT](https://img.shields.io/badge/license-MIT-lightgrey)](LICENSE)
+[![Telegram bot](https://img.shields.io/badge/Telegram-bot-26A5E4?logo=telegram&logoColor=white)](#-telegram-bot)
 
 A REST API for keeping a personal log of medications. Each account manages
 only its own records, and any record that belongs to someone else answers
 `404`, as if it did not exist.
+
+It integrates with **Telegram**: an account links its chat once, and the bot
+answers `/list` with that account's medications in use
+([how it works](#-telegram-bot)).
 
 There is no user interface by design. This is a backend project, built to be
 explored through HTTP requests. Health data is a sensitive category, so the
 public environment only ever holds fictional data.
 
 **Stack:** Python 3.14 · Django 6.1 · Django REST Framework · PostgreSQL ·
-Docker · GitHub Actions · deployed on Render and Neon.
+Docker · GitHub Actions · Telegram Bot API · deployed on Render and Neon.
 
 **Live:** https://medication-log-api.onrender.com/healthz/ (free tier, so the
 first request after a while can take up to a minute to wake the service)
@@ -29,8 +34,8 @@ through CI, before the next one starts.
 
 | | |
 |---|---|
-| **Done** | Tooling and CI, production deploy, custom user model, registration, token login, current user endpoint, logout, interactive API documentation, medication records owned per account, account deletion, a verification walkthrough that ends in another account's `404` |
-| **Next** | A Telegram bot that answers with the sender's own medication list |
+| **Done** | Tooling and CI, production deploy, custom user model, registration, token login, current user endpoint, logout, interactive API documentation, medication records owned per account, account deletion, a verification walkthrough that ends in another account's `404`, a Telegram bot that answers with the linked account's medications in use |
+| **Next** | Research on a web frontend for the API |
 
 The full plan and the reasons for its order are in the
 [roadmap](docs/task-slices/0001-roadmap.md).
@@ -46,6 +51,7 @@ The full plan and the reasons for its order are in the
 | Server and container | Granian (WSGI), multi-stage non-root Docker image, Docker Compose |
 | Quality | pytest, pytest-django, pytest-cov, mypy in strict mode, Ruff, pre-commit, Conventional Commits |
 | CI/CD | GitHub Actions (lint, types, tests against PostgreSQL, migration check, image build), branch protection |
+| External integration | Telegram Bot API (webhook, deep link) |
 | Hosting | Render (application), Neon (PostgreSQL) |
 | Packaging | uv |
 
@@ -67,6 +73,10 @@ The full plan and the reasons for its order are in the
 | `GET` | `/api/medications/<id>/` | token | Returns one of the account's medications |
 | `PUT`, `PATCH` | `/api/medications/<id>/` | token | Edits it; suspending or resuming is `PATCH {"state": ...}` |
 | `DELETE` | `/api/medications/<id>/` | token | Deletes it |
+| `POST` | `/api/telegram/link/` | token | Returns a link to the bot, valid for 10 minutes and for one use |
+| `GET` | `/api/telegram/link/` | token | Shows when the account's chat was linked |
+| `DELETE` | `/api/telegram/link/` | token | Unlinks the account's chat |
+| `POST` | `/api/telegram/webhook/` | Telegram only | Receives the bot's messages; requests without the webhook secret are refused |
 
 ## 💻 Trying it from the terminal
 
@@ -211,7 +221,12 @@ itself. The endpoints marked with a lock then send that token. To act as the
 other account, choose **Authorize** again, log out of the page's
 authorization and type the other token.
 
-The same sequence as the terminal:
+Logging in does not change the token the page sends: the page keeps sending
+the authorized token until you change it in **Authorize**. That token stays
+valid until logout or until it expires, so log out
+(**POST /api/auth/logout/**) before leaving the page.
+
+The same sequence as the terminal, plus the Telegram bot in steps 11 to 13:
 
 1. **Create an account** — **POST /api/users/**
 2. **Log in** — **POST /api/auth/login/**, then **Authorize** with the token
@@ -223,16 +238,47 @@ The same sequence as the terminal:
 8. **Suspend it** — **PATCH /api/medications/{id}/**
 9. **Filter by state** — **GET /api/medications/**, with `state` set to `suspended`
 10. **Record the same medication again** — **POST /api/medications/**
-11. **Create a second account and log in** — **POST /api/users/** and
+11. **Link Telegram** — **POST /api/telegram/link/**, then open the `link`
+    from the response in Telegram ([Telegram bot](#-telegram-bot))
+12. **See the link** — **GET /api/telegram/link/**
+13. **Unlink Telegram** — **DELETE /api/telegram/link/**
+14. **Create a second account and log in** — **POST /api/users/** and
     **POST /api/auth/login/**, then **Authorize** with the new token
-12. **Ask for the first account's medication** — **GET /api/medications/{id}/**
-13. **Delete the medication** — **DELETE /api/medications/{id}/**, with the
+15. **Ask for the first account's medication** — **GET /api/medications/{id}/**
+16. **Delete the medication** — **DELETE /api/medications/{id}/**, with the
     first account's token
-14. **Log out** — **POST /api/auth/logout/**
-15. **Delete both accounts** — **POST /api/users/me/delete/**, once with each
+17. **Log out** — **POST /api/auth/logout/**
+18. **Delete both accounts** — **POST /api/users/me/delete/**, once with each
     account's token
 
 The public environment only holds fictional data, so use a made-up email.
+
+## 🤖 Telegram bot
+
+The bot shows an account's medications in use. Linking and unlinking happen
+in the API, through the [interactive documentation](#-using-the-interactive-documentation)
+(steps 11 to 13); reading happens in the chat. It works on the public
+environment only.
+
+1. **Ask for a link** — **POST /api/telegram/link/** returns a `link`. It
+   works once, within 10 minutes.
+2. **Open it** — on a phone or computer with Telegram, then choose
+   **Start**. The bot answers "Your account is linked."
+3. **Send `/list`** — the medications in use, by name, with concentration
+   and form. Suspended medications do not appear.
+4. **Send `/help`** — what the bot does and how to unlink. Any other message
+   gets the same answer.
+
+Good to know:
+
+- The bot answers private chats only, never groups.
+- One chat for one account: a new link replaces the old one.
+- Logging out does not unlink the chat. **DELETE /api/telegram/link/** or
+  deleting the account does.
+- On the free tier, the first message after a while can take up to a minute
+  while the service wakes.
+
+<img src="docs/images/telegram-bot.png" width="400" alt="Telegram chat with the bot: linking, /help, /list with four medications, and /help after unlinking">
 
 ## Running locally
 
