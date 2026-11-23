@@ -1,5 +1,8 @@
 # Roadmap — the map of slices
 
+> **Revision 3 — 2026-11-23.** Slice 8, a web interface, added after the
+> first release closed. Everything else from revision 2 holds.
+
 > **Revision 2 — 2026-10-23.** The plan was cut down to a first release in
 > two milestones. This revision is the current plan. Revision 1
 > (2026-08-26), the original eight-slice plan, is kept unchanged at the
@@ -30,6 +33,12 @@ release.
 |---|---|---|
 | 7 | Telegram | a command to the bot returns the sender's own medication list; the README is updated as the slice's last task |
 
+## Second release — web interface
+
+| # | Slice | What exists at the end that did not exist before |
+|---|---|---|
+| 8 | Web interface | an account signs up, logs in, manages its own medications, links Telegram and manages the account from a web page, against the API already live |
+
 ## Why this order
 
 **Slice 0 first**, because two of its parts are practically irreversible: the
@@ -54,6 +63,9 @@ walkthrough.
 **Telegram last**, because it is the only slice with an open blocker — how
 the backend confirms which account a conversation belongs to — and it is not
 the project's shop window.
+
+**Web interface after the first release**, because it is built on the
+endpoints the first release delivered.
 
 ## The rule that makes a slice vertical
 
