@@ -14,9 +14,10 @@ It integrates with **Telegram**: an account links its chat once, and the bot
 answers `/list` with that account's medications in use
 ([how it works](#-telegram-bot)).
 
-There is no user interface by design. This is a backend project, built to be
-explored through HTTP requests. Health data is a sensitive category, so the
-public environment only ever holds fictional data.
+A web interface in React with TypeScript is under construction; until it is
+live, the API is explored through HTTP requests and the interactive
+documentation. Health data is a sensitive category, so the public environment
+only ever holds fictional data.
 
 **Stack:** Python 3.14 · Django 6.1 · Django REST Framework · PostgreSQL ·
 Docker · GitHub Actions · Telegram Bot API · deployed on Render and Neon.
@@ -35,7 +36,7 @@ through CI, before the next one starts.
 | | |
 |---|---|
 | **Done** | Tooling and CI, production deploy, custom user model, registration, token login, current user endpoint, logout, interactive API documentation, medication records owned per account, account deletion, a verification walkthrough that ends in another account's `404`, a Telegram bot that answers with the linked account's medications in use |
-| **Next** | Research on a web frontend for the API |
+| **Next** | A web interface in React with TypeScript, hosted on Cloudflare Workers |
 
 The full plan and the reasons for its order are in the
 [roadmap](docs/task-slices/0001-roadmap.md).
