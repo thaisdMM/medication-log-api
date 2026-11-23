@@ -5,15 +5,10 @@ None is technical debt: technical debt is doing something wrong on purpose to
 ship faster, and it charges interest. A boundary drawn on purpose charges
 nothing.
 
-## 1. A user interface
+## 1. A user interface — revoked
 
-No screens. The project is a REST API and nothing else.
-
-A UI is the project's largest scope multiplier, estimated at 40–50% of total
-time. A REST API without a UI is not an incomplete API.
-
-What solves visibility instead: published interactive API documentation plus
-the README walkthrough (ADR 0014).
+Revoked by ADR 0022 on 2026-11-23: the project now has a web interface. The
+interactive API documentation stays published (ADR 0014).
 
 ## 2. Anything that makes it a clinical tool
 

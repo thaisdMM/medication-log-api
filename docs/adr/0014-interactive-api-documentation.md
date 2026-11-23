@@ -6,6 +6,9 @@ decision-makers: Thaís
 
 # Interactive API documentation published
 
+> **Amended by ADR 0022 — 2026-11-23.** The project now has a web interface;
+> the interactive documentation stays published.
+
 ## Context and Problem Statement
 
 The project has no user interface (non-goals item 1): it is a REST API and
