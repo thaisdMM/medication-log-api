@@ -58,6 +58,13 @@ code. Tests follow the rule under Tests.
   message from Django or a library is written out as the real response writes
   it.
 
+### Frontend
+
+- The type-hint and docstring rules above apply to the Python code. The
+  frontend follows the TypeScript handbook: return types are left to
+  inference, and a test's name states the behaviour, with no doc comment.
+- Biome lints and formats the frontend.
+
 ## Dependencies and versions
 
 - Direct dependencies are declared in `pyproject.toml` with a floor
