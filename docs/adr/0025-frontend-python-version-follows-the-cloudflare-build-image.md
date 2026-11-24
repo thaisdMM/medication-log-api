@@ -28,7 +28,8 @@ build image ships", because the build then finds that version already
 installed and skips the download. The frontend's file differs from the root
 one on purpose; matching them brings the download back. With the root file
 only, every build spent minutes installing Python. The `PYTHON_VERSION`
-variable did not reach the build: its log listed no build variables.
+variable did not reach the build: the build's settings listed no build
+variables.
 Deploying from GitHub Actions needs a Cloudflare API token and the account ID
 as repository secrets, and the preview address would no longer come from
 Workers Builds (ADR 0023).
