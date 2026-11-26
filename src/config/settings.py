@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "corsheaders",
     "rest_framework",
     "drf_spectacular",
     "knox",
@@ -49,6 +50,7 @@ INSTALLED_APPS = [
 AUTH_USER_MODEL = "users.User"
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -138,6 +140,16 @@ MAILERS = {
         "BACKEND": "django.core.mail.backends.console.EmailBackend",
     },
 }
+
+
+# django-cors-headers
+# https://github.com/adamchainz/django-cors-headers
+
+CORS_ALLOWED_ORIGINS: list[str] = env.list("CORS_ALLOWED_ORIGINS", default=[])
+CORS_ALLOWED_ORIGIN_REGEXES = [
+    r"^https://[a-z0-9-]+-medication-log-web\.thaisdmm\.workers\.dev$",
+]
+CORS_URLS_REGEX = r"^/(api|healthz)/"
 
 
 # Django REST framework
